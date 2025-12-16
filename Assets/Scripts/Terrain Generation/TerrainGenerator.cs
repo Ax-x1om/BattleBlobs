@@ -10,7 +10,9 @@ public class TerrainGenrator : MonoBehaviour
 {
     // Gets object and script
     public GameObject MapGenerator;
+    public GameObject A_Star;
     MapGenerator mapGenerator;
+    A_Star_Grid aStarGrid;
 
     // Puts all the variables for the MapGenerator in one place
     readonly int TerrainSize = 500;
@@ -36,7 +38,7 @@ public class TerrainGenrator : MonoBehaviour
 
     Vector2 regionsize = Vector2.one;
     Vector3 TreeUpVector = Vector3.up * 1.5f;
-    Vector2 bottomLeftCorner = new Vector2(-500f, -500f);
+    Vector2 bottomLeftCorner;
     int rejectionCount = 12;
 
     List<Vector2> PoissonPoints;
@@ -47,6 +49,15 @@ public class TerrainGenrator : MonoBehaviour
     {
         mapGenerator = MapGenerator.GetComponent<MapGenerator>();
 
+        aStarGrid = A_Star.GetComponent<A_Star_Grid>();
+
+        aStarGrid.maxTerrainHeight = maxTerrainHeight;
+        aStarGrid.terrainSize = terrainScale;
+        aStarGrid.gridWorldSize = Vector2.one * terrainScale * TerrainSize;
+        aStarGrid.nodeRadius = 0.5f * terrainScale;
+        Debug.Log(aStarGrid.nodeRadius + " : from TerrainGenerator");
+
+        bottomLeftCorner = Vector2.one * -TerrainSize / 2 * terrainScale;
         // Creates a Random Seed
         seed = Mathf.RoundToInt(UnityEngine.Random.Range(0f, 10000f));
         // Creates a random offset
@@ -56,6 +67,8 @@ public class TerrainGenrator : MonoBehaviour
         mapGenerator.offset = offset;
         mapGenerator.mapWidth = TerrainSize;
         mapGenerator.mapHeight = TerrainSize;
+        mapGenerator.horizontalScale = terrainScale;
+        mapGenerator.verticalScale = maxTerrainHeight;
 
         mudmap = new bool[TerrainSize, TerrainSize];
 
@@ -96,19 +109,11 @@ public class TerrainGenrator : MonoBehaviour
                 }
             }
         }
+        Vector2 topLeft = new Vector2((width - 1) / -2f, (height - 1) / 2f);
 
-        float topLeftX = (width - 1) / -2f;
-        float topLeftZ = (height - 1) / 2f;
-
-
-        //for (int z = 0; z < height; z++)
-        //{
-        //    for (int x = 0; x < width; x++)
-        //    {
-        //        obstaclePoints.Add(new Vector3(terrainSize * (topLeftX + x), heightmap[x, z] * maxTerrainHeight, terrainSize * (topLeftZ - z)));
-        //    }
-        //}
-        //Debug.Log(obstaclePoints.Count);
+        aStarGrid.topLeft = topLeft;
+        aStarGrid.heightMap = heightmap;
+        aStarGrid.mudmap = mudmap;
 
         mapGenerator.GenerateMap(heightmap, mudmap);
 

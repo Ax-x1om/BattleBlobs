@@ -13,12 +13,12 @@ public class Pathfinding : MonoBehaviour
     readonly float cliffThreshold = 7.5f;
 
     PathRequestManager requestManager;
-    Grid grid;
+    A_Star_Grid grid;
 
     void Awake()
     {
         requestManager = GetComponent<PathRequestManager>();
-        grid = GetComponent<Grid>();
+        grid = GetComponent<A_Star_Grid>();
     }
 
     public void StartFindPath(Vector3 startPos, Vector3 endPos)
@@ -36,8 +36,11 @@ public class Pathfinding : MonoBehaviour
         Node startNode = grid.NodeFromWorldPoint(startPos);
         Node targetNode = grid.NodeFromWorldPoint(targetPos);
 
+        // Creates a heap
         Heap<Node> openSet = new Heap<Node>(grid.MaxSize);
+        // Creates a hash set for fast searching
         HashSet<Node> closedSet = new HashSet<Node>();
+        // adds startNode to heap
         openSet.Add(startNode);
 
         while (openSet.Count > 0)
@@ -58,7 +61,9 @@ public class Pathfinding : MonoBehaviour
                 {
                     continue;
                 }
-                int NewMovementCostToNeighbour = currentNode.gCost + getDistance(currentNode, neighbour) + getHeightPenalty(currentNode, neighbour);
+                // Movement cost calculated based on distance, height and weight
+                int NewMovementCostToNeighbour = currentNode.gCost + getDistance(currentNode, neighbour) + getHeightPenalty(currentNode, neighbour) + neighbour.movementPenalty;
+                // Updates the gCost if the newmovementcost is lower
                 if (NewMovementCostToNeighbour < neighbour.gCost || !openSet.Contains(neighbour))
                 {
                     neighbour.gCost = NewMovementCostToNeighbour;
@@ -69,12 +74,17 @@ public class Pathfinding : MonoBehaviour
                     {
                         openSet.Add(neighbour);
                     }
+                    else
+                    {
+                        openSet.UpdateItem(neighbour);
+                    }
                 }
             }
         }
         yield return null;
         if (pathSucess)
         {
+            // Retraces path
             waypoints = RetracePath(startNode, targetNode);
         }
         requestManager.FinishedProcessingPath(waypoints, pathSucess);
@@ -91,6 +101,7 @@ public class Pathfinding : MonoBehaviour
             currentNode = currentNode.parent;
         }
         Vector3[] waypoints = SimplyfyPath(path);
+        // Reverses path because the path would be backwards initally
         Array.Reverse(waypoints);
 
         return waypoints;
@@ -100,7 +111,7 @@ public class Pathfinding : MonoBehaviour
     {
         List <Vector3> waypoints = new List<Vector3>();
         Vector2 directionOld = Vector2.zero;
-
+        // Only includes the nodes where the direction changes
         for (int i = 1; i < path.Count; i++)
         {
             Vector2 directionNew = new Vector2(path[i - 1].GridX - path[i].GridX, path[i - 1].GridY - path[i].GridY);
@@ -110,7 +121,7 @@ public class Pathfinding : MonoBehaviour
             }
             directionOld = directionNew;
         }
-
+        // Functions use arrays so it has to be an array
         return waypoints.ToArray();
     }
     int getHeightPenalty(Node nodeA, Node nodeB)
@@ -118,16 +129,19 @@ public class Pathfinding : MonoBehaviour
         float heightA = nodeA.height;
         float heightB = nodeB.height;
         float heightDiff = heightB - heightA;
+        // Checks if the gradient is too steep, so units don't go up or down cliffs
         if (Mathf.Abs(heightDiff) > cliffThreshold)
         {
             return Mathf.RoundToInt(Mathf.Infinity);
         }
         else if (heightDiff > 0)
         {
+            // Applies uphill penalty
             return Mathf.RoundToInt(heightDiff * uphillPenalty);
         }
         else
         {
+            // Applies downhill penalty
             return Mathf.RoundToInt(heightDiff * downhillPenalty);
         }
     }

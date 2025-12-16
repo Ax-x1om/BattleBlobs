@@ -5,12 +5,13 @@ using UnityEngine;
 public class MapGenerator : MonoBehaviour
 {
 
-    // public enum DrawMode { NoiseMap, ColourMap, Mesh };
-    // public DrawMode drawMode;
-
     // Turn all of these into private readonlies
     public int mapWidth = 500;
     public int mapHeight = 500;
+
+    public float horizontalScale;
+    public float verticalScale;
+
     readonly float noiseScale = 250f;
 
     readonly int octaves = 4;
@@ -68,7 +69,7 @@ public class MapGenerator : MonoBehaviour
 
         MapDisplay display = FindFirstObjectByType<MapDisplay>();
 
-        display.DrawMesh(MeshGenerator.GenerateTerrainMesh(noiseMap), TextureGenerator.TextureFromColourMap(colourMap, mapWidth, mapHeight));
+        display.DrawMesh(MeshGenerator.GenerateTerrainMesh(noiseMap, horizontalScale, verticalScale), TextureGenerator.TextureFromColourMap(colourMap, mapWidth, mapHeight));
     }
 
     public float[,] getHeightMap()

@@ -2,13 +2,20 @@ using UnityEngine;
 using System.Collections.Generic;
 using static UnityEngine.UI.GridLayoutGroup;
 
-public class Grid : MonoBehaviour
+public class A_Star_Grid : MonoBehaviour
 {
     public Transform player;
     public LayerMask unwalkableMask;
     public Vector2 gridWorldSize;
+    public Vector2 topLeft;
+    public float terrainSize;
+    public float maxTerrainHeight;
+    int mudPenalty = 10;
     public float nodeRadius;
     Node[,] grid;
+
+    public float[,] heightMap;
+    public bool[,] mudmap;
 
     float nodeDiameter;
     int gridSizeX, gridSizeY;
@@ -16,7 +23,9 @@ public class Grid : MonoBehaviour
     private void Start()
     {
         nodeDiameter = nodeRadius * 2;
+        Debug.Log(nodeRadius);
         gridSizeX = Mathf.RoundToInt(gridWorldSize.x / nodeDiameter);
+        Debug.Log(gridSizeX);
         gridSizeY = Mathf.RoundToInt(gridWorldSize.y / nodeDiameter);
         CreateGrid();
     }
@@ -32,26 +41,23 @@ public class Grid : MonoBehaviour
     void CreateGrid()
     {
         grid = new Node[gridSizeX, gridSizeY];
-        Vector3 worldTopLeft = transform.position - Vector3.right * gridWorldSize.x / 2 + Vector3.forward * gridWorldSize.y / 2;
+        Vector3 worldTopLeft = new Vector3(topLeft.x, 0f, topLeft.y);
 
         // Change
         for (int x = 0; x < gridSizeX; x++)
         {
             for (int y = 0; y < gridSizeY; y++)
             {
-                Vector3 worldPoint = worldTopLeft + Vector3.right * (x * nodeDiameter + nodeRadius) - Vector3.forward * (y * nodeDiameter + nodeRadius);
-                Vector3 RayStart = worldPoint;
-                RayStart.y = 200;
+                float height = heightMap[x, y] * maxTerrainHeight;
+                Vector3 worldPoint = new Vector3(terrainSize * (topLeft.x + x), heightMap[x, y] * maxTerrainHeight, terrainSize * (topLeft.y - y));
 
-                Ray HeightCheck = new Ray(RayStart, Vector3.down);
-                float height = 0;
-                if (Physics.Raycast(HeightCheck, out var hitInfo))
+                int movePenalty = 0;
+                if (mudmap[x, y])
                 {
-                    height = hitInfo.point.y;
+                    movePenalty = mudPenalty;
                 }
-                bool walkable = true;
-                worldPoint.y = height;
-                grid[x, y] = new Node(walkable, worldPoint, x, y, height);
+
+                grid[x, y] = new Node(true, worldPoint, x, y, height, movePenalty);
             }
         }
     }
@@ -81,14 +87,11 @@ public class Grid : MonoBehaviour
 
     public Node NodeFromWorldPoint(Vector3 worldPosition)
     {
-        float percentX = (worldPosition.x + gridWorldSize.x / 2) / gridWorldSize.x;
-        float percentY = (worldPosition.z + gridWorldSize.y / 2) / gridWorldSize.y;
-        percentX = Mathf.Clamp01(percentX);
-        percentY = 1 - Mathf.Clamp01(percentY);
-
-        int x = Mathf.RoundToInt((gridSizeX - 1) * percentX);
-        int y = Mathf.RoundToInt((gridSizeY - 1) * percentY);
-        return grid[x, y];
+        float X = worldPosition.x;
+        float Z = worldPosition.z;
+        int x = Mathf.RoundToInt(X/terrainSize - topLeft.x);
+        int z = Mathf.RoundToInt(topLeft.y - Z/terrainSize);
+        return grid[x, z];
     }
 }
     
