@@ -6,12 +6,18 @@ using UnityEngine.Analytics;
 using UnityEngine.Rendering;
 using static UnityEngine.Mesh;
 
-public class TerrainGenrator : MonoBehaviour
+public class TerrainGenerator : MonoBehaviour
 {
+    public static TerrainGenerator Instance { get; set; }
+
     // Gets object and script
     public GameObject MapGenerator;
+
+    // To be removed
     public GameObject A_Star;
     MapGenerator mapGenerator;
+
+    // To be removed
     A_Star_Grid aStarGrid;
 
     // Puts all the variables for the MapGenerator in one place
@@ -20,7 +26,7 @@ public class TerrainGenrator : MonoBehaviour
     public GameObject tree;
     float radius = 20f;
     float maxTerrainHeight = 170f;
-    float terrainScale = 2f;
+    public float terrainScale = 2f;
     float[,] heightmap;
 
     int seed;
@@ -31,7 +37,7 @@ public class TerrainGenrator : MonoBehaviour
     float lowMudHeight = 0.18f;
     float maxMudHeight = 0.35f;
     float[,] premudmap;
-    bool[,] mudmap;
+    public bool[,] mudmap;
 
     float treeDropOffHeight = 0.2f;
     float maxTreeHeight = 0.4f;
@@ -39,25 +45,41 @@ public class TerrainGenrator : MonoBehaviour
     Vector2 regionsize = Vector2.one;
     Vector3 TreeUpVector = Vector3.up * 1.5f;
     Vector2 bottomLeftCorner;
+    public Vector2 topLeftcorner;
     int rejectionCount = 12;
 
     List<Vector2> PoissonPoints;
     //List<Vector3> obstaclePoints = new List<Vector3>();
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            Instance = this;
+        }
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         mapGenerator = MapGenerator.GetComponent<MapGenerator>();
 
+        // To be removed
         aStarGrid = A_Star.GetComponent<A_Star_Grid>();
 
         aStarGrid.maxTerrainHeight = maxTerrainHeight;
         aStarGrid.terrainSize = terrainScale;
         aStarGrid.gridWorldSize = Vector2.one * terrainScale * TerrainSize;
         aStarGrid.nodeRadius = 0.5f * terrainScale;
-        Debug.Log(aStarGrid.nodeRadius + " : from TerrainGenerator");
+        
 
         bottomLeftCorner = Vector2.one * -TerrainSize / 2 * terrainScale;
+
+        topLeftcorner = bottomLeftCorner + Vector2.up * terrainScale * TerrainSize;
         // Creates a Random Seed
         seed = Mathf.RoundToInt(UnityEngine.Random.Range(0f, 10000f));
         // Creates a random offset
