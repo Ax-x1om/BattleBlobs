@@ -45,6 +45,7 @@ public class BaseUnitScript : MonoBehaviour
     public string state = "Idle";
     LayerMask floor;
     public LayerMask Avoid;
+    public LayerMask enemy;
     Rigidbody m_rigidbody;
     // Getting references for all the state scripts
     MovingState movingstate;
@@ -70,8 +71,9 @@ public class BaseUnitScript : MonoBehaviour
         mudmap = TerrainGenerator.Instance.mudmap;
 
         // Getting Layermasks
-        floor = LayerMask.GetMask("Floor");
-        Avoid = LayerMask.GetMask("Obstacle") | LayerMask.GetMask("PlayerTeam");
+        floor = LayerMask.GetMask("Ground");
+        Avoid = LayerMask.GetMask("Object") | LayerMask.GetMask("PlayerTeam");
+        enemy = LayerMask.GetMask("EnemyTeam");
         // Adds unit to the unitList
         UnitSelectionManager.Instance.allUnitsList.Add(gameObject);
         // Used in obstacle avoidance

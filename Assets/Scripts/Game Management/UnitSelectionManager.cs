@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using NUnit.Framework;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -53,7 +54,7 @@ public class UnitSelectionManager : MonoBehaviour
     {
         cam = Camera.main;
         clickable = LayerMask.GetMask("PlayerTeam");
-        ground = LayerMask.GetMask("Floor");
+        ground = LayerMask.GetMask("Ground");
     }
 
     private void Update()
@@ -93,12 +94,8 @@ public class UnitSelectionManager : MonoBehaviour
                 Target = hit.point;
                 if (Formations.Count > 0)
                 {
-                    // Would be replaced with a request from the A* pathfinding algorithm but is this for now
-                    Waypoints.Clear();
-                    for (int i = 0; i < 10; i++)
-                    {
-                        Waypoints.Add(RandomVector(50f, 50f));
-                    }
+                   
+                    PathRequestManager.RequestPath(COMofUnits(), Target, OnPathFound);
 
                     foreach (GameObject formation in Formations)
                     {
@@ -118,8 +115,10 @@ public class UnitSelectionManager : MonoBehaviour
                 {
                     foreach (GameObject unit in selectedUnitsList)
                     {
+                        // Creates a path and makes the units follow it
+                        PathRequestManager.RequestPath(COMofUnits(), Target, OnPathFound);
                         unit.GetComponent<BaseUnitScript>().setState("Moving");
-                        unit.GetComponent<BaseUnitScript>().setTarget(hit.point);
+                        unit.GetComponent<BaseUnitScript>().setPath(Waypoints.ToArray());
                     }
                 }
             }
@@ -213,6 +212,18 @@ public class UnitSelectionManager : MonoBehaviour
         }
     }
 
+    public void OnPathFound(Vector3[] newpath, bool pathSucessful)
+    {
+        Waypoints.Clear();
+        // Creates waypoints when the A* finds a path
+        if (pathSucessful)
+        {
+            foreach (Vector3 point in newpath)
+            {
+                Waypoints.Add(point);
+            }
+        }
+    }
     private void MultiSelect(GameObject gameObject)
     {
         if (!(selectedUnitsList.Contains(gameObject)))

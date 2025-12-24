@@ -29,12 +29,38 @@ public class PassiveDetectionScript : MonoBehaviour
         if (other.gameObject != unit)
         {
             // Does this check so it doesn't detect itself
-            bsu.isThereObstacle = true;
+            if (other.gameObject.layer == bsu.enemy)
+            {
+                // Sets the state to fighting if the unit is an enemy and the unit is not in formation
+                if (bsu.getState() != "Forming Up" & bsu.getState() != "At Ease" & bsu.getState() != "Marching")
+                {
+                    bsu.TargetLocation = other.gameObject.transform.position;
+                    bsu.setState("Fighting");
+                }
+            }
+            else
+            {
+                // makes the unit attempt to avoid obstacles
+                bsu.isThereObstacle = true;
+            }
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        bsu.isThereObstacle = false;
+        if (other.gameObject.layer == bsu.enemy)
+        {
+            // Sets the state to fighting if the unit is an enemy and the unit is not in formation
+            if (bsu.getState() != "Forming Up" & bsu.getState() != "At Ease" & bsu.getState() != "Marching")
+            {
+                bsu.TargetLocation = other.gameObject.transform.position;
+                bsu.setState("Idle");
+            }
+        }
+        else
+        {
+            // makes the unit attempt to avoid obstacles
+            bsu.isThereObstacle = false;
+        }
     }
 }

@@ -115,8 +115,7 @@ public class TerrainGenerator : MonoBehaviour
                 }
                 else if (heightmap[x, z] < maxMudHeight && premudmap[x, z] > mudThreshold)
                 {
-                    // The random assortment of floats is to make a clean lerp between the threshold being 0.5 at 0.3 and 1 at 0.43
-                    if (premudmap[x, z] > LineFromTwoPoints(maxMudHeight, lowMudHeight, heightmap[x, z], 1, mudThreshold))
+                    if (premudmap[x, z] > LineFromTwoPoints(lowMudHeight, maxMudHeight, heightmap[x, z], mudThreshold))
                     {
                         mudmap[x, z] = true;
                     }
@@ -170,6 +169,7 @@ public class TerrainGenerator : MonoBehaviour
 
     }
 
+    // Creates a line from two points and calculates where a value falls on said line
     float LineFromTwoPoints(float x_0, float x_1, float x, float y_0 = 0, float y_1 = 1, bool clamp = false)
     {
         // Classic gradient formula
