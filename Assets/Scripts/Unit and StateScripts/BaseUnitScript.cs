@@ -53,6 +53,16 @@ public class BaseUnitScript : MonoBehaviour
     MarchingState marchingstate;
     ShuffleState shufflestate;
     AtEaseState ateasestate;
+    FightingState fightingstate;
+    // Variables to do with attacking and health
+    public float timeBetweenAttacks;
+    public float attackStrength;
+    public float attackDamage;
+    public float Health;
+    public float attackRange;
+    public float stunDuration;
+    float stunTimer = 0;
+    bool stunned = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -64,6 +74,7 @@ public class BaseUnitScript : MonoBehaviour
         marchingstate = GetComponent<MarchingState>();
         shufflestate = GetComponent<ShuffleState>();
         ateasestate = GetComponent<AtEaseState>();
+        fightingstate = GetComponent<FightingState>();
 
         
         terrainSize = TerrainGenerator.Instance.terrainScale;
@@ -90,25 +101,36 @@ public class BaseUnitScript : MonoBehaviour
             // Probably add a method for the units to move away from each other if they're too close while idle or moving
             // When moving, there should be an added vector to the direction vector to cause it to move away
             // This requires an empty child gameobject
-            if (state == "Moving")
+            if (stunned)
             {
-                movingstate.ExecuteState();
+                whenStunned();
             }
-            else if (state == "Forming Up")
+            else
             {
-                formingupstate.ExecuteState();
-            }
-            else if (state == "Marching")
-            {
-                marchingstate.ExecuteState();
-            }
-            else if (state == "Shuffling")
-            {
-                shufflestate.ExecuteState();
-            }
-            else if (state == "At Ease")
-            {
-                ateasestate.ExecuteState();
+                if (state == "Moving")
+                {
+                    movingstate.ExecuteState();
+                }
+                else if (state == "Forming Up")
+                {
+                    formingupstate.ExecuteState();
+                }
+                else if (state == "Marching")
+                {
+                    marchingstate.ExecuteState();
+                }
+                else if (state == "Shuffling")
+                {
+                    shufflestate.ExecuteState();
+                }
+                else if (state == "At Ease")
+                {
+                    ateasestate.ExecuteState();
+                }
+                else if (state == "Fighting")
+                {
+                    fightingstate.ExecuteState();
+                }
             }
         }
         // This is here because Unity is a buggy peice of trash that refuses to do what it's told
@@ -216,6 +238,53 @@ public class BaseUnitScript : MonoBehaviour
         m_rigidbody.AddForce(CounterMovement, ForceMode.Acceleration);
     }
 
+    public void Attack(Collider other)
+    {
+        // Attacks by pushing their opponent away
+        if (other.attachedRigidbody)
+        {
+            // Stuns the opponent, stopping the levitation for a bit, allowing it to tumble away
+            // Change BaseUnitScript to whatever the enemy equivalent is
+            other.gameObject.GetComponent<BaseUnitScript>().stun();
+            //Vector3 random = RandomVector(attackStrength * 0.3f, true);
+            other.attachedRigidbody.AddForce(AwayVector(other.attachedRigidbody.position) * attackStrength, ForceMode.Impulse);
+            // Does damage
+            other.gameObject.GetComponent<BaseUnitScript>().ModifyHealth(-attackDamage);
+        }
+    }
+
+    Vector3 AwayVector(Vector3 opponentPosition)
+    {
+        // Makes it so any attack pushes the enemy away
+        Vector3 Relative_Location = opponentPosition - transform.position;
+        return Relative_Location.normalized;
+    }
+
+    public void ModifyHealth(float amount)
+    {
+        Health += amount;
+        // Destroys object if health dips below 0
+        if (Health <= 0)
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    void stun()
+    {
+        stunned = true;
+        stunTimer = stunDuration;
+    }
+
+    void whenStunned()
+    {
+        stunTimer -= Time.deltaTime;
+        if (stunTimer < 0)
+        {
+            stunTimer = 0;
+            stunned = false;
+        }
+    }
     bool OnMud()
     {
         // returns true if the unit is over a cell that is mud, returns false otherwise

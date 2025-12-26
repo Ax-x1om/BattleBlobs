@@ -114,7 +114,6 @@ public class FormingUpState : MonoBehaviour
 
     public void ExecuteState()
     {
-        Debug.DrawRay(transform.position, bsu.TargetForwardTransform * 5f, Color.red, 0.0f, false);
         if (!AtLocation)
         {
             if (bsu.DistanceToTarget() <= vicinityRadius)
