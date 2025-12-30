@@ -51,6 +51,7 @@ public class TerrainGenerator : MonoBehaviour
     List<Vector2> PoissonPoints;
     //List<Vector3> obstaclePoints = new List<Vector3>();
 
+    public GameObject Unit;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -105,6 +106,7 @@ public class TerrainGenerator : MonoBehaviour
         int width = heightmap.GetLength(0);
         int height = heightmap.GetLength(1);
 
+        // Creates the list of bools for the mudmap
         for (int z = 0; z < height; z++)
         {
             for (int x = 0; x < width; x++)
@@ -130,6 +132,9 @@ public class TerrainGenerator : MonoBehaviour
                 }
             }
         }
+        Debug.Log("Mudmap Created");
+        Debug.Log("Terrain Generator: " + mudmap);
+
         Vector2 topLeft = new Vector2((width - 1) / -2f, (height - 1) / 2f);
 
         aStarGrid.topLeft = topLeft;
@@ -161,6 +166,15 @@ public class TerrainGenerator : MonoBehaviour
                 }
             }
         }
+
+        Vector3 Start = new Vector3(0f, 200f, 0f);
+        Ray Check = new Ray(Start, Vector3.down);
+        if (Physics.Raycast(Check, out var Info))
+        {
+            Debug.Log("Unit Spawned");
+            GameObject UnitTest = Instantiate(Unit, Info.point + Vector3.up * 5f, Quaternion.identity);
+        }
+        Debug.Log("After Raycast");
     }
 
     // Update is called once per frame

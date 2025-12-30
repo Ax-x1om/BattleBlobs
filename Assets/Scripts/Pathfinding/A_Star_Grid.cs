@@ -10,7 +10,7 @@ public class A_Star_Grid : MonoBehaviour
     public Vector2 topLeft;
     public float terrainSize;
     public float maxTerrainHeight;
-    int mudPenalty = 10;
+    int mudPenalty = 20;
     public float nodeRadius;
     Node[,] grid;
 
@@ -89,8 +89,8 @@ public class A_Star_Grid : MonoBehaviour
     {
         float X = worldPosition.x;
         float Z = worldPosition.z;
-        int x = Mathf.RoundToInt(X/terrainSize - topLeft.x);
-        int z = Mathf.RoundToInt(topLeft.y - Z/terrainSize);
+        int x = Mathf.FloorToInt((X - topLeft.x) / terrainSize);
+        int z = Mathf.FloorToInt((topLeft.y - Z) / terrainSize);
         return grid[x, z];
     }
 }

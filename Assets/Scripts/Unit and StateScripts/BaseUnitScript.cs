@@ -9,16 +9,16 @@ public class BaseUnitScript : MonoBehaviour
 
     // Variables for hovering
     readonly float rideHeight = 1.8f;
-    readonly float springStrength = 30f;
-    readonly float springDampening = 25f;
-    readonly float springLength = 2.5f;
+    readonly float springStrength = 100f;
+    readonly float springDampening = 75f;
+    readonly float springLength = 5f;
     // Variables for moving and turning
-    public float maximumSpeed = 5f;
-    readonly float CounterForce = 3f;
+    public float maximumSpeed = 15f;
+    readonly float CounterForce = 10f;
     readonly float RotationSpeed = 12f;
     readonly float RotationDamping = 2f;
-    readonly float maximumResistiveForce = 2f;
-    readonly float maximumForwardForce = 4f;
+    readonly float maximumResistiveForce = 30f;
+    readonly float maximumForwardForce = 20f;
     readonly float TurnDst = 2f;
     Vector3 CounterMovement = Vector3.zero;
     public Vector3 TargetLocation = Vector3.zero;
@@ -66,6 +66,7 @@ public class BaseUnitScript : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        Debug.Log("Im being created");
         m_rigidbody = GetComponent<Rigidbody>();
 
         // Getting statescripts
@@ -80,6 +81,9 @@ public class BaseUnitScript : MonoBehaviour
         terrainSize = TerrainGenerator.Instance.terrainScale;
         topLeft = TerrainGenerator.Instance.topLeftcorner;
         mudmap = TerrainGenerator.Instance.mudmap;
+        Debug.Log("Mudmap Recieved");
+        
+        
 
         // Getting Layermasks
         floor = LayerMask.GetMask("Ground");
@@ -107,7 +111,11 @@ public class BaseUnitScript : MonoBehaviour
             }
             else
             {
-                if (state == "Moving")
+                if (state == "Idle")
+                {
+                    
+                }
+                else if (state == "Moving")
                 {
                     movingstate.ExecuteState();
                 }
@@ -140,6 +148,12 @@ public class BaseUnitScript : MonoBehaviour
         c_rotation.z = 0;
         m_rigidbody.rotation = Quaternion.Euler(c_rotation);
         m_rigidbody.angularVelocity = new Vector3(0f, m_rigidbody.angularVelocity.y, 0f);
+
+        // Removes unit if it falls off the map
+        if (transform.position.y < -10f)
+        {
+            Destroy(gameObject);
+        }
     }
 
     private void OnDestroy()
@@ -163,7 +177,8 @@ public class BaseUnitScript : MonoBehaviour
             float levitationError = rideHeight - spring.distance;
             float verticalVelocity = m_rigidbody.linearVelocity.y;
             // Adds an upwards force to the capsule while dampening the oscillations caused.
-            m_rigidbody.AddForce(Vector3.up * (levitationError * springStrength - verticalVelocity * springDampening), ForceMode.Acceleration);
+            Debug.DrawRay(transform.position, (Vector3.up * (levitationError * springStrength - verticalVelocity * springDampening)), Color.red,0.0f,false);
+            m_rigidbody.AddForce(Vector3.up * (levitationError * springStrength - verticalVelocity * springDampening));
         }
     }
 
@@ -205,7 +220,7 @@ public class BaseUnitScript : MonoBehaviour
             // Slows down unit if it's on mud
             MovementForce *= 0.5f;
         }
-        m_rigidbody.AddForce(MovementForce, ForceMode.Acceleration);
+        m_rigidbody.AddForce(MovementForce);
     }
 
     public void MoveInAnyDirection(Vector3 TargetVelocity)
@@ -217,7 +232,7 @@ public class BaseUnitScript : MonoBehaviour
         TargetVelocity.y = 0;
         // Force gets smaller as the Target and Current Velocities get closer
         Vector3 MovementForce = Vector3.ClampMagnitude(TargetVelocity - CurrentVelocity, maximumForwardForce);
-        m_rigidbody.AddForce(MovementForce, ForceMode.Acceleration);
+        m_rigidbody.AddForce(MovementForce);
     }
 
     public void setPath(Vector3[] points)
@@ -235,7 +250,7 @@ public class BaseUnitScript : MonoBehaviour
         // Makes it to the forces don't exceed the maximum
         CounterMovement = Vector3.ClampMagnitude(-CounterMovement * CounterForce, maximumResistiveForce);
         // Clamp magnitude
-        m_rigidbody.AddForce(CounterMovement, ForceMode.Acceleration);
+        m_rigidbody.AddForce(CounterMovement);
     }
 
     public void Attack(Collider other)
@@ -287,11 +302,16 @@ public class BaseUnitScript : MonoBehaviour
     }
     bool OnMud()
     {
+        Debug.Log(mudmap);
         // returns true if the unit is over a cell that is mud, returns false otherwise
         float X = transform.position.x;
         float Z = transform.position.z;
-        int x = Mathf.RoundToInt(X / terrainSize - topLeft.x);
-        int z = Mathf.RoundToInt(topLeft.y - Z / terrainSize);
+        Debug.Log("TerrainSize: " + terrainSize);
+        Debug.Log("TopLeft: " + topLeft);
+        int x = Mathf.FloorToInt((X - topLeft.x )/ terrainSize);
+        int z = Mathf.FloorToInt((topLeft.y - Z )/ terrainSize);
+        Debug.Log(x);
+        Debug.Log(z);
         return mudmap[x, z];
     }
 
@@ -321,5 +341,14 @@ public class BaseUnitScript : MonoBehaviour
     public void setTarget(Vector3 newtarget)
     {
         TargetLocation = newtarget;
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.black;
+        foreach (Vector3 point in Waypoints)
+        {
+            Gizmos.DrawCube(point, Vector3.one);
+        }
     }
 }

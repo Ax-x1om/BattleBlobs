@@ -8,24 +8,18 @@ using System;
 
 public class Pathfinding : MonoBehaviour
 {
-    readonly float uphillPenalty = 4f;
-    readonly float downhillPenalty = -0.7f;
+    readonly float uphillPenalty = 20f;
+    readonly float downhillPenalty = -15f;
     readonly float cliffThreshold = 7.5f;
 
-    PathRequestManager requestManager;
     A_Star_Grid grid;
 
     void Awake()
     {
-        requestManager = GetComponent<PathRequestManager>();
         grid = GetComponent<A_Star_Grid>();
     }
 
-    public void StartFindPath(Vector3 startPos, Vector3 endPos)
-    {
-        StartCoroutine(FindPath(startPos, endPos));
-    }
-    IEnumerator FindPath(Vector3 startPos, Vector3 targetPos)
+    public void FindPath(PathRequest request, Action<PathResult> callback)
     {
         Stopwatch sw = new Stopwatch();
         sw.Start();
@@ -33,8 +27,8 @@ public class Pathfinding : MonoBehaviour
         Vector3[] waypoints = new Vector3[0];
         bool pathSucess = false;
 
-        Node startNode = grid.NodeFromWorldPoint(startPos);
-        Node targetNode = grid.NodeFromWorldPoint(targetPos);
+        Node startNode = grid.NodeFromWorldPoint(request.pathStart);
+        Node targetNode = grid.NodeFromWorldPoint(request.pathEnd);
 
         // Creates a heap
         Heap<Node> openSet = new Heap<Node>(grid.MaxSize);
@@ -81,13 +75,13 @@ public class Pathfinding : MonoBehaviour
                 }
             }
         }
-        yield return null;
         if (pathSucess)
         {
             // Retraces path
             waypoints = RetracePath(startNode, targetNode);
+            pathSucess = waypoints.Length > 0;
         }
-        requestManager.FinishedProcessingPath(waypoints, pathSucess);
+        callback(new PathResult(waypoints, pathSucess, request.callback));
     }
 
     Vector3[] RetracePath(Node startNode, Node endNode)

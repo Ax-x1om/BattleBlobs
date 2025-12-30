@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using JetBrains.Annotations;
 using NUnit.Framework;
 using Unity.VisualScripting;
@@ -16,6 +17,7 @@ public class UnitSelectionManager : MonoBehaviour
     public int ranks = 3;
     public GameObject file;
     public GameObject formation;
+   
 
     public List<GameObject> allUnitsList = new List<GameObject>();
     public List<GameObject> Formations = new List<GameObject>();
@@ -91,36 +93,10 @@ public class UnitSelectionManager : MonoBehaviour
             Ray movePosition = cam.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(movePosition, out hit, Mathf.Infinity, ground))
             {
+                Debug.Log("Hit target");
                 Target = hit.point;
-                if (Formations.Count > 0)
-                {
-                   
-                    PathRequestManager.RequestPath(COMofUnits(), Target, OnPathFound);
-
-                    foreach (GameObject formation in Formations)
-                    {
-                        // Adds an extra point in front of the formation to keep the formation straight initally
-                        Vector3[] fpath = new Vector3[Waypoints.Count + 1];
-                        fpath[0] = formation.transform.position + formation.transform.forward * formation.GetComponent<Formation>().ZSpacing();
-                        for (int i = 1; i <= Waypoints.Count; i++)
-                        {
-                            // Adds waypoints to the formations
-                            fpath[i] = Waypoints[i - 1];
-                        }
-                        // Sets the path
-                        formation.GetComponent<Formation>().setPath(fpath);
-                    }
-                }
-                else
-                {
-                    foreach (GameObject unit in selectedUnitsList)
-                    {
-                        // Creates a path and makes the units follow it
-                        PathRequestManager.RequestPath(COMofUnits(), Target, OnPathFound);
-                        unit.GetComponent<BaseUnitScript>().setState("Moving");
-                        unit.GetComponent<BaseUnitScript>().setPath(Waypoints.ToArray());
-                    }
-                }
+                // Move all of this into on path found
+                PathRequestManager.RequestPath(new PathRequest(COMofUnits(), Target, OnPathFound));
             }
         }
         else if (Input.GetKeyDown("f"))
@@ -216,11 +192,40 @@ public class UnitSelectionManager : MonoBehaviour
     {
         Waypoints.Clear();
         // Creates waypoints when the A* finds a path
+        Debug.Log("Was path sucessful?: " + pathSucessful);
         if (pathSucessful)
         {
             foreach (Vector3 point in newpath)
             {
                 Waypoints.Add(point);
+            }
+        }
+        Debug.Log("SelectionManager Waypoints Length: " + Waypoints.Count);
+
+        if (Formations.Count > 0)
+        {
+            foreach (GameObject formation in Formations)
+            {
+                // Adds an extra point in front of the formation to keep the formation straight initally
+                Vector3[] fpath = new Vector3[Waypoints.Count + 1];
+                fpath[0] = formation.transform.position + formation.transform.forward * formation.GetComponent<Formation>().ZSpacing();
+                for (int i = 1; i <= Waypoints.Count; i++)
+                {
+                    // Adds waypoints to the formations
+                    fpath[i] = Waypoints[i - 1];
+                }
+                // Sets the path
+                formation.GetComponent<Formation>().setPath(fpath);
+            }
+        }
+        else
+        {
+            foreach (GameObject unit in selectedUnitsList)
+            {
+                // Creates a path and makes the units follow it
+                Debug.Log("Path Set");
+                unit.GetComponent<BaseUnitScript>().setPath(Waypoints.ToArray());
+                unit.GetComponent<BaseUnitScript>().setState("Moving");
             }
         }
     }

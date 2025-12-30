@@ -116,49 +116,53 @@ public class MovingState : MonoBehaviour
         // This is what would be in Update() if it wasn't a statescript
 
         Vector2 Pos2D = new Vector2(transform.position.x, transform.position.z);
-        Vector3 targetPos = bsu.Waypoints[bsu.pointIndex];
-
-        if (stuck)
+        Debug.Log(bsu.Waypoints.Length);
+        if (bsu.Waypoints.Length > 0)
         {
-            // Moves the unit away from the collision
-            bsu.MoveInAnyDirection(-bsu.maximumSpeed * CollisionPoint.normalized);
-            // Increments the time
-            stucktimer -= Time.deltaTime;
-            if (stucktimer < 0.0f)
+            // Will only execute the code if there is an actual path
+            Vector3 targetPos = bsu.Waypoints[bsu.pointIndex];
+            if (stuck)
             {
-                // Sets stuck to false and the timer to zero when time runs out
-                stucktimer = 0.0f;
-                stuck = false;
-            }
-        }
-        else
-        {
-            // Executes the code if the unit is *not* stuck
-            Vector3 baseDirection = (targetPos - transform.position).normalized;
-
-            if (bsu.isThereObstacle)
-            {
-                // Changes the direction the unit will turn to based on the turn script
-                baseDirection = AvoidObstacles(baseDirection);
-            }
-
-            if (bsu.path.turnBoundaries[bsu.pointIndex].HasCrossedLine(Pos2D))
-            {
-                if (bsu.pointIndex < bsu.Waypoints.Length - 1)
+                // Moves the unit away from the collision
+                bsu.MoveInAnyDirection(-bsu.maximumSpeed * CollisionPoint.normalized);
+                // Increments the time
+                stucktimer -= Time.deltaTime;
+                if (stucktimer < 0.0f)
                 {
-                    bsu.pointIndex++;
-                }
-                else
-                {
-                    bsu.setState("Idle");
+                    // Sets stuck to false and the timer to zero when time runs out
+                    stucktimer = 0.0f;
+                    stuck = false;
                 }
             }
             else
             {
-                // Make the unit turn to the direction we evaluated to be the best to avoid the obstacle
+                // Executes the code if the unit is *not* stuck
+                Vector3 baseDirection = (targetPos - transform.position).normalized;
 
-                bsu.TurnToDirection(baseDirection);
-                bsu.MoveForward();
+                if (bsu.isThereObstacle)
+                {
+                    // Changes the direction the unit will turn to based on the turn script
+                    baseDirection = AvoidObstacles(baseDirection);
+                }
+
+                if (bsu.path.turnBoundaries[bsu.pointIndex].HasCrossedLine(Pos2D))
+                {
+                    if (bsu.pointIndex < bsu.Waypoints.Length - 1)
+                    {
+                        bsu.pointIndex++;
+                    }
+                    else
+                    {
+                        bsu.setState("Idle");
+                    }
+                }
+                else
+                {
+                    // Make the unit turn to the direction we evaluated to be the best to avoid the obstacle
+
+                    bsu.TurnToDirection(baseDirection);
+                    bsu.MoveForward();
+                }
             }
         }
     }
