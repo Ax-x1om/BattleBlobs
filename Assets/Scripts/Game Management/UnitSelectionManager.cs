@@ -26,6 +26,8 @@ public class UnitSelectionManager : MonoBehaviour
 
     Vector3 GeneralTarget = new Vector3(4f, 0f, 40f);
 
+    Vector3 LastClick = Vector3.zero;
+
     List<Vector3> Waypoints = new List<Vector3>();
 
     LayerMask clickable;
@@ -95,6 +97,8 @@ public class UnitSelectionManager : MonoBehaviour
             {
                 Debug.Log("Hit target");
                 Target = hit.point;
+                LastClick = hit.point;
+                Debug.Log(hit.point);
                 // Move all of this into on path found
                 PathRequestManager.RequestPath(new PathRequest(COMofUnits(), Target, OnPathFound));
             }
@@ -281,6 +285,7 @@ public class UnitSelectionManager : MonoBehaviour
 
     private void TriggerSelectionIndicator(GameObject unit, bool isVisible)
     {
+        Debug.Log(unit.name);
         unit.transform.GetChild(0).gameObject.SetActive(isVisible);
     }
 
@@ -309,5 +314,11 @@ public class UnitSelectionManager : MonoBehaviour
             selectedUnitsList.Add(unit);
             TriggerSelectionIndicator(unit, true);
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawSphere(LastClick, 3f);
     }
 }

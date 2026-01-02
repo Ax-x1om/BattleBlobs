@@ -13,11 +13,11 @@ public class BaseUnitScript : MonoBehaviour
     readonly float springDampening = 75f;
     readonly float springLength = 5f;
     // Variables for moving and turning
-    public float maximumSpeed = 15f;
-    readonly float CounterForce = 10f;
+    public float maximumSpeed = 20f;
+    readonly float CounterForce = 2f;
     readonly float RotationSpeed = 12f;
     readonly float RotationDamping = 2f;
-    readonly float maximumResistiveForce = 30f;
+    readonly float maximumResistiveForce = 20f;
     readonly float maximumForwardForce = 20f;
     readonly float TurnDst = 2f;
     Vector3 CounterMovement = Vector3.zero;
@@ -87,7 +87,7 @@ public class BaseUnitScript : MonoBehaviour
 
         // Getting Layermasks
         floor = LayerMask.GetMask("Ground");
-        Avoid = LayerMask.GetMask("Object") | LayerMask.GetMask("PlayerTeam");
+        Avoid = LayerMask.GetMask("Object") | LayerMask.GetMask("PlayerTeam") | LayerMask.GetMask("PlayerTeamAvoid");
         enemy = LayerMask.GetMask("EnemyTeam");
         // Adds unit to the unitList
         UnitSelectionManager.Instance.allUnitsList.Add(gameObject);
@@ -176,8 +176,7 @@ public class BaseUnitScript : MonoBehaviour
         {
             float levitationError = rideHeight - spring.distance;
             float verticalVelocity = m_rigidbody.linearVelocity.y;
-            // Adds an upwards force to the capsule while dampening the oscillations caused.
-            Debug.DrawRay(transform.position, (Vector3.up * (levitationError * springStrength - verticalVelocity * springDampening)), Color.red,0.0f,false);
+            // Adds an upwards force to the capsule while dampening the oscillations caused
             m_rigidbody.AddForce(Vector3.up * (levitationError * springStrength - verticalVelocity * springDampening));
         }
     }
@@ -220,6 +219,7 @@ public class BaseUnitScript : MonoBehaviour
             // Slows down unit if it's on mud
             MovementForce *= 0.5f;
         }
+        Debug.DrawRay(transform.position, MovementForce, Color.red, 0.0f, false);
         m_rigidbody.AddForce(MovementForce);
     }
 
@@ -302,16 +302,11 @@ public class BaseUnitScript : MonoBehaviour
     }
     bool OnMud()
     {
-        Debug.Log(mudmap);
         // returns true if the unit is over a cell that is mud, returns false otherwise
         float X = transform.position.x;
         float Z = transform.position.z;
-        Debug.Log("TerrainSize: " + terrainSize);
-        Debug.Log("TopLeft: " + topLeft);
         int x = Mathf.FloorToInt((X - topLeft.x )/ terrainSize);
-        int z = Mathf.FloorToInt((topLeft.y - Z )/ terrainSize);
-        Debug.Log(x);
-        Debug.Log(z);
+        int z = Mathf.FloorToInt((topLeft.y - Z) / terrainSize);
         return mudmap[x, z];
     }
 
@@ -348,7 +343,7 @@ public class BaseUnitScript : MonoBehaviour
         Gizmos.color = Color.black;
         foreach (Vector3 point in Waypoints)
         {
-            Gizmos.DrawCube(point, Vector3.one);
+            Gizmos.DrawCube(point, Vector3.one*5);
         }
     }
 }

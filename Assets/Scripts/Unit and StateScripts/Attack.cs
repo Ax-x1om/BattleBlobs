@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Attack : MonoBehaviour
@@ -7,15 +8,18 @@ public class Attack : MonoBehaviour
     float AttackTimer;
     float timeVariation;
     SphereCollider range;
+    GameObject unit;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void Awake()
     {
         bsu = GetComponentInParent<BaseUnitScript>();
+        Debug.Log("BSU is now set");
         TBA = bsu.timeBetweenAttacks;
         timeVariation = TBA * 0.2f;
         AttackTimer = TBA + Random.Range(-timeVariation, timeVariation);
         range = GetComponent<SphereCollider>();
         range.radius = bsu.attackRange;
+        unit = transform.parent.gameObject;
     }
 
     // Update is called once per frame
@@ -37,9 +41,13 @@ public class Attack : MonoBehaviour
     private void OnTriggerStay(Collider other)
     {
         // Triggers the attack method in Unit
-        if (AttackTimer <= 0 && bsu.getState() == "Fighting")
+        if (other.gameObject != unit)
         {
-            bsu.Attack(other);
+            // Prevents it from detecting and attacking itself
+            if (AttackTimer <= 0 && bsu.getState() == "Fighting")
+            {
+                bsu.Attack(other);
+            }
         }
     }
 }

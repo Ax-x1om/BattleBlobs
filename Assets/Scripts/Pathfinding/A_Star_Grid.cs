@@ -49,7 +49,7 @@ public class A_Star_Grid : MonoBehaviour
             for (int y = 0; y < gridSizeY; y++)
             {
                 float height = heightMap[x, y] * maxTerrainHeight;
-                Vector3 worldPoint = new Vector3(terrainSize * (topLeft.x + x), heightMap[x, y] * maxTerrainHeight, terrainSize * (topLeft.y - y));
+                Vector3 worldPoint = new Vector3(nodeDiameter * x + topLeft.x, heightMap[x, y] * maxTerrainHeight, topLeft.y - nodeDiameter * y);
 
                 int movePenalty = 0;
                 if (mudmap[x, y])
@@ -89,8 +89,10 @@ public class A_Star_Grid : MonoBehaviour
     {
         float X = worldPosition.x;
         float Z = worldPosition.z;
-        int x = Mathf.FloorToInt((X - topLeft.x) / terrainSize);
-        int z = Mathf.FloorToInt((topLeft.y - Z) / terrainSize);
+        int x = Mathf.FloorToInt((X - topLeft.x) / nodeDiameter);
+        int z = Mathf.FloorToInt((topLeft.y - Z) / nodeDiameter);
+        Debug.Log("Grid X: " + x);
+        Debug.Log("Grid Z: " + z);
         return grid[x, z];
     }
 }

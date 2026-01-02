@@ -116,7 +116,7 @@ public class MovingState : MonoBehaviour
         // This is what would be in Update() if it wasn't a statescript
 
         Vector2 Pos2D = new Vector2(transform.position.x, transform.position.z);
-        Debug.Log(bsu.Waypoints.Length);
+        
         if (bsu.Waypoints.Length > 0)
         {
             // Will only execute the code if there is an actual path

@@ -178,12 +178,12 @@ MonoBehaviour:
   enemy:
     serializedVersion: 2
     m_Bits: 0
-  timeBetweenAttacks: 0
-  attackStrength: 0
-  attackDamage: 0
-  Health: 0
-  attackRange: 0
-  stunDuration: 0
+  timeBetweenAttacks: 1
+  attackStrength: 5
+  attackDamage: 10
+  Health: 100
+  attackRange: 2
+  stunDuration: 0.8
 --- !u!114 &4301209872382450899
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -381,7 +381,7 @@ Transform:
   m_GameObject: {fileID: 6206347588876503019}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.417, z: -0.273}
+  m_LocalPosition: {x: 0, y: 0.417, z: 0.4}
   m_LocalScale: {x: 0.605, y: 0.2, z: 0.66644}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -544,7 +544,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6075608846212296415}
   - component: {fileID: 7189502200689486898}
-  m_Layer: 6
+  m_Layer: 9
   m_Name: AvoidanceRange
   m_TagString: Untagged
   m_Icon: {fileID: 0}

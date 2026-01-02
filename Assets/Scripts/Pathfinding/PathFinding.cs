@@ -123,6 +123,11 @@ public class Pathfinding : MonoBehaviour
         float heightA = nodeA.height;
         float heightB = nodeB.height;
         float heightDiff = heightB - heightA;
+        float dist = 1;
+        if (nodeA.worldPosition.x != nodeB.worldPosition.x && nodeA.worldPosition.z != nodeB.worldPosition.z)
+        {
+            dist = 1.4f;
+        }
         // Checks if the gradient is too steep, so units don't go up or down cliffs
         if (Mathf.Abs(heightDiff) > cliffThreshold)
         {
@@ -131,12 +136,12 @@ public class Pathfinding : MonoBehaviour
         else if (heightDiff > 0)
         {
             // Applies uphill penalty
-            return Mathf.RoundToInt(heightDiff * uphillPenalty);
+            return Mathf.RoundToInt(heightDiff * uphillPenalty/dist);
         }
         else
         {
             // Applies downhill penalty
-            return Mathf.RoundToInt(heightDiff * downhillPenalty);
+            return Mathf.RoundToInt(heightDiff * downhillPenalty/dist);
         }
     }
     int getDistance(Node nodeA, Node nodeB)

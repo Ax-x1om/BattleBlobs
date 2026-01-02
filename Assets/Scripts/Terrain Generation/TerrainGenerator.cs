@@ -69,15 +69,6 @@ public class TerrainGenerator : MonoBehaviour
     {
         mapGenerator = MapGenerator.GetComponent<MapGenerator>();
 
-        // To be removed
-        aStarGrid = A_Star.GetComponent<A_Star_Grid>();
-
-        aStarGrid.maxTerrainHeight = maxTerrainHeight;
-        aStarGrid.terrainSize = terrainScale;
-        aStarGrid.gridWorldSize = Vector2.one * terrainScale * TerrainSize;
-        aStarGrid.nodeRadius = 0.5f * terrainScale;
-        
-
         bottomLeftCorner = Vector2.one * -TerrainSize / 2 * terrainScale;
 
         topLeftcorner = bottomLeftCorner + Vector2.up * terrainScale * TerrainSize;
@@ -86,6 +77,16 @@ public class TerrainGenerator : MonoBehaviour
         // Creates a random offset
         offset.Set(UnityEngine.Random.Range(-1000f, 1000f), UnityEngine.Random.Range(-1000f, 1000f));
 
+        // Sets variables for A*
+        aStarGrid = A_Star.GetComponent<A_Star_Grid>();
+
+        aStarGrid.maxTerrainHeight = maxTerrainHeight;
+        aStarGrid.terrainSize = terrainScale;
+        aStarGrid.gridWorldSize = Vector2.one * terrainScale * TerrainSize;
+        aStarGrid.nodeRadius = 0.5f * terrainScale;
+        aStarGrid.topLeft = topLeftcorner;
+
+        // Sets Variables for the map generator
         mapGenerator.seed = seed;
         mapGenerator.offset = offset;
         mapGenerator.mapWidth = TerrainSize;
@@ -135,9 +136,7 @@ public class TerrainGenerator : MonoBehaviour
         Debug.Log("Mudmap Created");
         Debug.Log("Terrain Generator: " + mudmap);
 
-        Vector2 topLeft = new Vector2((width - 1) / -2f, (height - 1) / 2f);
-
-        aStarGrid.topLeft = topLeft;
+        // Sets the heightmap and mudmaps into the grid so the weights and heights can be calculated properly
         aStarGrid.heightMap = heightmap;
         aStarGrid.mudmap = mudmap;
 
@@ -153,6 +152,7 @@ public class TerrainGenerator : MonoBehaviour
             {
                 float scaledHeight = hitInfo.point.y / maxTerrainHeight;
                 float probability = LineFromTwoPoints(maxTreeHeight, treeDropOffHeight, scaledHeight);
+
                 if (probability >= 1)
                 {
                     GameObject Tree = Instantiate(tree, hitInfo.point + TreeUpVector, Quaternion.Euler(0f, Random.value * 360f, 0f));
@@ -167,14 +167,19 @@ public class TerrainGenerator : MonoBehaviour
             }
         }
 
+        // Spawns units for debugging, remove later
         Vector3 Start = new Vector3(0f, 200f, 0f);
-        Ray Check = new Ray(Start, Vector3.down);
-        if (Physics.Raycast(Check, out var Info))
+     
+        for (int i = 0; i < 15; i++)
         {
-            Debug.Log("Unit Spawned");
-            GameObject UnitTest = Instantiate(Unit, Info.point + Vector3.up * 5f, Quaternion.identity);
+            Ray Check = new Ray(Start, Vector3.down);
+
+            if (Physics.Raycast(Check, out var Info))
+            {
+                GameObject UnitTest = Instantiate(Unit, Info.point + Vector3.up * 5f, Quaternion.identity);
+                Start += 5 * RandomVector();
+            }
         }
-        Debug.Log("After Raycast");
     }
 
     // Update is called once per frame
@@ -206,5 +211,12 @@ public class TerrainGenerator : MonoBehaviour
         Vector3 V3 = Vector3.zero;
         V3.Set(V2.x, Ycoord, V2.y);
         return V3;
+    }
+
+    // Remove later
+    Vector3 RandomVector()
+    {
+        float angle = Random.Range(-Mathf.PI, Mathf.PI);
+        return new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle));
     }
 }
