@@ -52,6 +52,7 @@ public class TerrainGenerator : MonoBehaviour
     //List<Vector3> obstaclePoints = new List<Vector3>();
 
     public GameObject Unit;
+    public GameObject Enemy;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -170,7 +171,7 @@ public class TerrainGenerator : MonoBehaviour
         // Spawns units for debugging, remove later
         Vector3 Start = new Vector3(0f, 200f, 0f);
      
-        for (int i = 0; i < 15; i++)
+        for (int i = 0; i < 10; i++)
         {
             Ray Check = new Ray(Start, Vector3.down);
 
@@ -180,6 +181,20 @@ public class TerrainGenerator : MonoBehaviour
             }
 
             Start += 5 * RandomVector();
+        }
+
+        Vector3 EnemyStart = new Vector3(0f, 200f, 100f);
+
+        for (int i = 0; i < 10; i++)
+        {
+            Ray Check = new Ray(EnemyStart, Vector3.down);
+
+            if (Physics.Raycast(Check, out var Info))
+            {
+                GameObject UnitTest = Instantiate(Enemy, Info.point + Vector3.up * 2f, Quaternion.identity);
+            }
+
+            EnemyStart += 5 * RandomVector();
         }
     }
 

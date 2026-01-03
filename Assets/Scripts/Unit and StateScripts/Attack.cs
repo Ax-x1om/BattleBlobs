@@ -3,30 +3,30 @@ using UnityEngine;
 
 public class Attack : MonoBehaviour
 {
-    BaseUnitScript bsu;
-    float TBA;
-    float AttackTimer;
-    float timeVariation;
-    SphereCollider range;
-    GameObject unit;
+    protected BaseUnitScript baseScript;
+    protected float TBA;
+    protected float AttackTimer;
+    protected float timeVariation;
+    protected SphereCollider range;
+    protected GameObject unit;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Awake()
+    protected virtual void Awake()
     {
-        bsu = GetComponentInParent<BaseUnitScript>();
+        baseScript = GetComponentInParent<BaseUnitScript>();
         Debug.Log("BSU is now set");
-        TBA = bsu.timeBetweenAttacks;
+        TBA = baseScript.timeBetweenAttacks;
         timeVariation = TBA * 0.2f;
         AttackTimer = TBA + Random.Range(-timeVariation, timeVariation);
         range = GetComponent<SphereCollider>();
-        range.radius = bsu.attackRange;
+        range.radius = baseScript.attackRange;
         unit = transform.parent.gameObject;
     }
 
     // Update is called once per frame
-    void Update()
+    protected void Update()
     {
         // Timer for attacks
-        if (AttackTimer <= 0 && bsu.getState() == "Fighting")
+        if (AttackTimer <= 0 && baseScript.getState() == "Fighting")
         {
             AttackTimer = TBA + Random.Range(-timeVariation, timeVariation);
         }
@@ -35,18 +35,18 @@ public class Attack : MonoBehaviour
             AttackTimer -= Time.deltaTime;
         }
         // Prevents collider from being left behind
-        transform.position = bsu.transform.position;
+        transform.position = baseScript.transform.position;
     }
 
-    private void OnTriggerStay(Collider other)
+    protected void OnTriggerStay(Collider other)
     {
         // Triggers the attack method in Unit
         if (other.gameObject != unit)
         {
             // Prevents it from detecting and attacking itself
-            if (AttackTimer <= 0 && bsu.getState() == "Fighting")
+            if (AttackTimer <= 0 && baseScript.getState() == "Fighting")
             {
-                bsu.Attack(other);
+                baseScript.Attack(other);
             }
         }
     }

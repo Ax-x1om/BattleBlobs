@@ -1,18 +1,22 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class FightingState : MonoBehaviour
 {
-    BaseUnitScript bsu;
-    CapsuleCollider mainBody;
+    protected BaseUnitScript baseScript;
+    protected CapsuleCollider mainBody;
     bool stuck = false;
     float stucktimer = 0.0f;
+    protected float maxSpeed;
     
     Vector3 CollisionPoint = Vector3.zero;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    protected virtual void Start()
     {
-        bsu = GetComponent<BaseUnitScript>();
+        baseScript = GetComponent<BaseUnitScript>();
+        baseScript.DebugLog();
         mainBody = GetComponent<CapsuleCollider>();
+        maxSpeed = baseScript.getMaxSpeed();
     }
 
     // Update is called once per frame
@@ -38,13 +42,13 @@ public class FightingState : MonoBehaviour
         RaycastHit ObstacleDetection;
         TargetDirection = TargetDirection.normalized;
         // Calculates the maximum amount of raycasts at one side to do
-        bsu.n_raycasts = Mathf.FloorToInt((bsu.MaxRayCastAngle + Vector3.Angle(transform.forward, TargetDirection)) / bsu.RayCastAngle);
+        baseScript.n_raycasts = Mathf.FloorToInt((baseScript.MaxRayCastAngle + Vector3.Angle(transform.forward, TargetDirection)) / baseScript.RayCastAngle);
         // Does the central raycast
 
         // This one has the special check for if the target is in front of the obstacle
-        if (Physics.Raycast(transform.position, TargetDirection, out ObstacleDetection, bsu.ObstacleDetectionRange, bsu.Avoid))
+        if (Physics.Raycast(transform.position, TargetDirection, out ObstacleDetection, baseScript.ObstacleDetectionRange, baseScript.Avoid))
         {
-            if (ObstacleDetection.distance > bsu.DistanceToTarget())
+            if (ObstacleDetection.distance > baseScript.DistanceToTarget())
             {
                 // Returns the vector if the target is in front of the obstacle
                 return TargetDirection;
@@ -54,22 +58,22 @@ public class FightingState : MonoBehaviour
         {
             return TargetDirection;
         }
-        for (int i = 1; i <= bsu.n_raycasts; i++)
+        for (int i = 1; i <= baseScript.n_raycasts; i++)
         {
-            Vector3 rightVector = RotateByAngle(TargetDirection, bsu.dtheta * i);
-            Vector3 leftVector = RotateByAngle(TargetDirection, -bsu.dtheta * i);
-            if (Vector3.Angle(rightVector, transform.forward) < bsu.MaxRayCastAngle)
+            Vector3 rightVector = RotateByAngle(TargetDirection, baseScript.dtheta * i);
+            Vector3 leftVector = RotateByAngle(TargetDirection, -baseScript.dtheta * i);
+            if (Vector3.Angle(rightVector, transform.forward) < baseScript.MaxRayCastAngle)
             {
                 // Only does the raycast if the angle between them is less than MaxRayCastAngle
                 // Meaning it's in the cone of vision
-                if (!(Physics.Raycast(transform.position, rightVector, out ObstacleDetection, bsu.ObstacleDetectionRange, bsu.Avoid)))
+                if (!(Physics.Raycast(transform.position, rightVector, out ObstacleDetection, baseScript.ObstacleDetectionRange, baseScript.Avoid)))
                 {
                     // Returns the vector if the raycast doesn't hit anything
                     return rightVector;
                 }
                 else
                 {
-                    if (i == bsu.n_raycasts)
+                    if (i == baseScript.n_raycasts)
                     {
                         // Returns the vector if the code fails to find a valid path
                         return rightVector;
@@ -77,17 +81,17 @@ public class FightingState : MonoBehaviour
                 }
             }
 
-            if (Vector3.Angle(leftVector, transform.forward) < bsu.MaxRayCastAngle)
+            if (Vector3.Angle(leftVector, transform.forward) < baseScript.MaxRayCastAngle)
             {
                 // Only does the raycast if the raycast is within the cone of vision
-                if (!(Physics.Raycast(transform.position, leftVector, out ObstacleDetection, bsu.ObstacleDetectionRange, bsu.Avoid)))
+                if (!(Physics.Raycast(transform.position, leftVector, out ObstacleDetection, baseScript.ObstacleDetectionRange, baseScript.Avoid)))
                 {
                     // Returns the vector if the raycast doesn't hit anything
                     return leftVector;
                 }
                 else
                 {
-                    if (i == bsu.n_raycasts)
+                    if (i == baseScript.n_raycasts)
                     {
                         // Returns the vector if the code fails to find a valid path
                         return leftVector;
@@ -112,11 +116,11 @@ public class FightingState : MonoBehaviour
     public void ExecuteState()
     {
         // Executes the code if the unit is *not* stuck
-
+        Debug.Log(name + " is fighting");
         if (stuck)
         {
             // Moves the unit away from the collision
-            bsu.MoveInAnyDirection(-bsu.maximumSpeed * CollisionPoint.normalized);
+            baseScript.MoveInAnyDirection(-maxSpeed * CollisionPoint.normalized);
             // Increments the time
             stucktimer -= Time.deltaTime;
             if (stucktimer < 0.0f)
@@ -128,18 +132,18 @@ public class FightingState : MonoBehaviour
         }
         else
         {
-            Vector3 baseDirection = (bsu.TargetLocation - transform.position).normalized;
+            Vector3 baseDirection = (baseScript.TargetLocation - transform.position).normalized;
 
-            if (bsu.isThereObstacle)
+            if (baseScript.isThereObstacle)
             {
                 // Changes the direction the unit will turn to based on the turn script
                 baseDirection = AvoidObstacles(baseDirection);
             }
 
             // Make the unit turn to the direction we evaluated to be the best to avoid the obstacle
-            bsu.TurnToDirection(baseDirection);
+            baseScript.TurnToDirection(baseDirection);
             // Moves forward
-            bsu.MoveForward();
+            baseScript.MoveForward();
         }
         
     }

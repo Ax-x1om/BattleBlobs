@@ -4,56 +4,57 @@ public class BaseEnemyScript : BaseUnitScript
 {
     // Inherits from BaseUnitScript to massively decrease size
 
-    MovingState movingstate;
-    FightingState fightingstate;
+    EnemyMovingState enemymovingstate;
+    EnemyFightingState enemyfightingstate;
 
-    Rigidbody m_rigidbody;
-
-    public LayerMask Avoid;
-    public LayerMask enemy;
-
-    public float timeBetweenAttacks;
-    public float attackStrength;
-    public float attackDamage;
-    public float Health;
-    public float attackRange;
-    public float stunDuration;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         m_rigidbody = GetComponent<Rigidbody>();
 
-        movingstate = GetComponent<MovingState>();
-        fightingstate = GetComponent<FightingState>();
+        enemymovingstate = GetComponent<EnemyMovingState>();
+        enemyfightingstate = GetComponent<EnemyFightingState>();
 
         // Getting Layermasks
+        floor = LayerMask.GetMask("Ground");
         Avoid = LayerMask.GetMask("Object") | LayerMask.GetMask("EnemyTeam") | LayerMask.GetMask("EnemyTeamAvoid");
         enemy = LayerMask.GetMask("PlayerTeam");
+
+        terrainSize = TerrainGenerator.Instance.terrainScale;
+        topLeft = TerrainGenerator.Instance.topLeftcorner;
+        mudmap = TerrainGenerator.Instance.mudmap;
+
+        dtheta = RayCastAngle * Mathf.Deg2Rad;
     }
 
     // Update is called once per frame
-    void Update()
+    protected override void Update()
     {
-        if (isOnGround())
+        Debug.Log(name + " update is working");
+        Debug.Log(name + "'s onGround() test: " + base.isOnGround());
+        if (base.isOnGround())
         {
-            Hover();
-            addResistiveForces();
+            Debug.Log(name + " is on Ground");
+            base.Hover();
+            base.addResistiveForces();
             // Probably add a method for the units to move away from each other if they're too close while idle or moving
             // When moving, there should be an added vector to the direction vector to cause it to move away
             // This requires an empty child gameobject
             if (stunned)
             {
-                whenStunned();
+                base.whenStunned();
             }
             else
             {
+                Debug.Log(name + " is not Stunned");
                 if (state == "Moving")
                 {
-                    movingstate.ExecuteState();
+                    enemymovingstate.ExecuteState();
                 }
                 else if (state == "Fighting")
                 {
-                    fightingstate.ExecuteState();
+                    Debug.Log(name + " should be fighting");
+                    enemyfightingstate.ExecuteState();
                 }
             }
         }
@@ -76,7 +77,7 @@ public class BaseEnemyScript : BaseUnitScript
     public override void Attack(Collider other)
     {
         // Overrides the function in BaseUnitScript as it has to trigger a different function in a different script
-
+        Debug.Log(name + " has attacked");
         // Attacks by pushing their opponent away
         if (other.attachedRigidbody)
         {
@@ -84,7 +85,7 @@ public class BaseEnemyScript : BaseUnitScript
             // Change BaseUnitScript to whatever the enemy equivalent is
             other.gameObject.GetComponent<BaseUnitScript>().stun();
             //Vector3 random = RandomVector(attackStrength * 0.3f, true);
-            other.attachedRigidbody.AddForce(AwayVector(other.attachedRigidbody.position) * attackStrength, ForceMode.Impulse);
+            other.attachedRigidbody.AddForce(base.AwayVector(other.attachedRigidbody.position) * attackStrength, ForceMode.Impulse);
             // Does damage
             other.gameObject.GetComponent<BaseUnitScript>().ModifyHealth(-attackDamage);
         }

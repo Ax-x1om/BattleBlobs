@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class FormingUpState : MonoBehaviour
 {
-    BaseUnitScript bsu;
+    BaseUnitScript baseScript;
     float vicinityRadius = 0.2f;
     float slowdownRadius = 4.0f;
     bool stuck = false;
@@ -10,11 +10,13 @@ public class FormingUpState : MonoBehaviour
     CapsuleCollider mainBody;
     Vector3 CollisionPoint = Vector3.zero;
     public bool AtLocation = false;
+    float maxSpeed;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        bsu = GetComponent<BaseUnitScript>();
+        baseScript = GetComponent<BaseUnitScript>();
         mainBody = GetComponent<CapsuleCollider>();
+        maxSpeed = baseScript.getMaxSpeed();
     }
 
     // All of this stuff is pretty much the same as Moving State
@@ -34,13 +36,13 @@ public class FormingUpState : MonoBehaviour
         RaycastHit ObstacleDetection;
         TargetDirection = TargetDirection.normalized;
         // Calculates the maximum amount of raycasts at one side to do
-        bsu.n_raycasts = Mathf.FloorToInt((bsu.MaxRayCastAngle + Vector3.Angle(transform.forward, TargetDirection)) / bsu.RayCastAngle);
+        baseScript.n_raycasts = Mathf.FloorToInt((baseScript.MaxRayCastAngle + Vector3.Angle(transform.forward, TargetDirection)) / baseScript.RayCastAngle);
         // Does the central raycast
 
         // This one has the special check for if the target is in front of the obstacle
-        if (Physics.Raycast(transform.position, TargetDirection, out ObstacleDetection, bsu.ObstacleDetectionRange, bsu.Avoid))
+        if (Physics.Raycast(transform.position, TargetDirection, out ObstacleDetection, baseScript.ObstacleDetectionRange, baseScript.Avoid))
         {
-            if (ObstacleDetection.distance > bsu.DistanceToTarget())
+            if (ObstacleDetection.distance > baseScript.DistanceToTarget())
             {
                 // Returns the vector if the target is in front of the obstacle
                 return TargetDirection;
@@ -50,22 +52,22 @@ public class FormingUpState : MonoBehaviour
         {
             return TargetDirection;
         }
-        for (int i = 1; i <= bsu.n_raycasts; i++)
+        for (int i = 1; i <= baseScript.n_raycasts; i++)
         {
-            Vector3 rightVector = RotateByAngle(TargetDirection, bsu.dtheta * i);
-            Vector3 leftVector = RotateByAngle(TargetDirection, -bsu.dtheta * i);
-            if (Vector3.Angle(rightVector, transform.forward) < bsu.MaxRayCastAngle)
+            Vector3 rightVector = RotateByAngle(TargetDirection, baseScript.dtheta * i);
+            Vector3 leftVector = RotateByAngle(TargetDirection, -baseScript.dtheta * i);
+            if (Vector3.Angle(rightVector, transform.forward) < baseScript.MaxRayCastAngle)
             {
                 // Only does the raycast if the angle between them is less than MaxRayCastAngle
                 // Meaning it's in the cone of vision
-                if (!(Physics.Raycast(transform.position, rightVector, out ObstacleDetection, bsu.ObstacleDetectionRange, bsu.Avoid)))
+                if (!(Physics.Raycast(transform.position, rightVector, out ObstacleDetection, baseScript.ObstacleDetectionRange, baseScript.Avoid)))
                 {
                     // Returns the vector if the raycast doesn't hit anything
                     return rightVector;
                 }
                 else
                 {
-                    if (i == bsu.n_raycasts)
+                    if (i == baseScript.n_raycasts)
                     {
                         // Returns the vector if the code fails to find a valid path
                         return rightVector;
@@ -73,17 +75,17 @@ public class FormingUpState : MonoBehaviour
                 }
             }
 
-            if (Vector3.Angle(leftVector, transform.forward) < bsu.MaxRayCastAngle)
+            if (Vector3.Angle(leftVector, transform.forward) < baseScript.MaxRayCastAngle)
             {
                 // Only does the raycast if the raycast is within the cone of vision
-                if (!(Physics.Raycast(transform.position, leftVector, out ObstacleDetection, bsu.ObstacleDetectionRange, bsu.Avoid)))
+                if (!(Physics.Raycast(transform.position, leftVector, out ObstacleDetection, baseScript.ObstacleDetectionRange, baseScript.Avoid)))
                 {
                     // Returns the vector if the raycast doesn't hit anything
                     return leftVector;
                 }
                 else
                 {
-                    if (i == bsu.n_raycasts)
+                    if (i == baseScript.n_raycasts)
                     {
                         // Returns the vector if the code fails to find a valid path
                         return leftVector;
@@ -116,7 +118,7 @@ public class FormingUpState : MonoBehaviour
     {
         if (!AtLocation)
         {
-            if (bsu.DistanceToTarget() <= vicinityRadius)
+            if (baseScript.DistanceToTarget() <= vicinityRadius)
             {
                 // Sets the AtLocation to be true if it is at the location
                 AtLocation = true;
@@ -127,7 +129,7 @@ public class FormingUpState : MonoBehaviour
                 if (stuck)
                 {
                     // Moves the unit away from the collision
-                    bsu.MoveInAnyDirection(-bsu.maximumSpeed * CollisionPoint.normalized);
+                    baseScript.MoveInAnyDirection(-maxSpeed * CollisionPoint.normalized);
                     // Increments the time
                     stucktimer -= Time.deltaTime;
                     if (stucktimer < 0.0f)
@@ -140,38 +142,38 @@ public class FormingUpState : MonoBehaviour
                 else
                 {
                     // Executes the code if the unit is *not* stuck
-                    if (bsu.DistanceToTarget() > slowdownRadius)
+                    if (baseScript.DistanceToTarget() > slowdownRadius)
                     {
                         // Does the movement normally if the unit is far away from the point
-                        Vector3 baseDirection = (bsu.TargetLocation - transform.position).normalized;
+                        Vector3 baseDirection = (baseScript.TargetLocation - transform.position).normalized;
 
-                        if (bsu.isThereObstacle)
+                        if (baseScript.isThereObstacle)
                         {
                             // Changes the direction the unit will turn to based on the turn script
                             baseDirection = AvoidObstacles(baseDirection);
                         }
 
                         // Make the unit turn to the direction we evaluated to be the best to avoid the obstacle
-                        bsu.TurnToDirection(baseDirection);
+                        baseScript.TurnToDirection(baseDirection);
                         // Moves forward
-                        bsu.MoveForward();
+                        baseScript.MoveForward();
                     }
                     else
                     {
                         // Makes the unit slow down when it's close to the point
-                        Vector3 baseDirection = (bsu.TargetLocation - transform.position).normalized;
-                        bsu.TurnToDirection(baseDirection, 5f);
-                        bsu.MoveInAnyDirection(transform.forward * bsu.maximumSpeed * bsu.DistanceToTarget() / slowdownRadius);
+                        Vector3 baseDirection = (baseScript.TargetLocation - transform.position).normalized;
+                        baseScript.TurnToDirection(baseDirection, 5f);
+                        baseScript.MoveInAnyDirection(transform.forward * maxSpeed * baseScript.DistanceToTarget() / slowdownRadius);
                     }
                 }
             }
         }
         else
         {
-            bsu.TurnToDirection(bsu.TargetForwardTransform - transform.position);
-            if (Vector3.Angle(transform.forward, bsu.TargetForwardTransform) < 2f)
+            baseScript.TurnToDirection(baseScript.TargetForwardTransform - transform.position);
+            if (Vector3.Angle(transform.forward, baseScript.TargetForwardTransform) < 2f)
             {
-                bsu.setState("At Ease");
+                baseScript.setState("At Ease");
             }
         }
     }

@@ -13,12 +13,12 @@ public class BaseUnitScript : MonoBehaviour
     readonly float springDampening = 75f;
     readonly float springLength = 5f;
     // Variables for moving and turning
-    public float maximumSpeed = 20f;
+    readonly float maximumSpeed = 8f;
     readonly float CounterForce = 2f;
     readonly float RotationSpeed = 15f;
     readonly float RotationDamping = 2f;
     readonly float maximumResistiveForce = 30f;
-    readonly float maximumForwardForce = 20f;
+    readonly float maximumForwardForce = 10f;
     readonly float TurnDst = 2f;
     Vector3 CounterMovement = Vector3.zero;
     public Vector3 TargetLocation = Vector3.zero;
@@ -31,10 +31,10 @@ public class BaseUnitScript : MonoBehaviour
     public float dtheta;
     public int n_raycasts;
 
-    bool[,] mudmap;
+    protected bool[,] mudmap;
 
-    float terrainSize;
-    Vector2 topLeft;
+    protected float terrainSize;
+    protected Vector2 topLeft;
 
     public Vector3[] Waypoints;
     public Directions path;
@@ -43,10 +43,10 @@ public class BaseUnitScript : MonoBehaviour
     public string type = "Soldier";
     // Intial state
     public string state = "Idle";
-    LayerMask floor;
+    protected LayerMask floor;
     public LayerMask Avoid;
     public LayerMask enemy;
-    Rigidbody m_rigidbody;
+    protected Rigidbody m_rigidbody;
     // Getting references for all the state scripts
     MovingState movingstate;
     FormingUpState formingupstate;
@@ -89,6 +89,7 @@ public class BaseUnitScript : MonoBehaviour
         floor = LayerMask.GetMask("Ground");
         Avoid = LayerMask.GetMask("Object") | LayerMask.GetMask("PlayerTeam") | LayerMask.GetMask("PlayerTeamAvoid");
         enemy = LayerMask.GetMask("EnemyTeam");
+        Debug.Log("Enemy layer" + enemy);
         // Adds unit to the unitList
         UnitSelectionManager.Instance.allUnitsList.Add(gameObject);
         // Used in obstacle avoidance
@@ -96,7 +97,7 @@ public class BaseUnitScript : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    protected virtual void Update()
     {
         if (isOnGround())
         {
@@ -269,6 +270,11 @@ public class BaseUnitScript : MonoBehaviour
         }
     }
 
+    public void DebugLog()
+    {
+        Debug.Log(name + " This is working");
+    }
+
     protected Vector3 AwayVector(Vector3 opponentPosition)
     {
         // Makes it so any attack pushes the enemy away
@@ -311,6 +317,10 @@ public class BaseUnitScript : MonoBehaviour
         return mudmap[x, z];
     }
 
+    public float getMaxSpeed()
+    {
+        return maximumSpeed;
+    }
     public string getState()
     {
         return state;

@@ -1,18 +1,21 @@
 using System.ComponentModel;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class EnemyAttack : Attack
 {
-    BaseEnemyScript bsu;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    protected override void Awake()
     {
-        bsu = GetComponentInParent<BaseEnemyScript>();
+        baseScript = GetComponentInParent<BaseEnemyScript>();
+        Debug.Log("BSU is now set");
+        TBA = baseScript.timeBetweenAttacks;
+        timeVariation = TBA * 0.2f;
+        AttackTimer = TBA + Random.Range(-timeVariation, timeVariation);
+        range = GetComponent<SphereCollider>();
+        range.radius = baseScript.attackRange;
+        unit = transform.parent.gameObject;
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

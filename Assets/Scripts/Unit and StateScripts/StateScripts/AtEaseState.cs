@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class AtEaseState : MonoBehaviour
 {
-    BaseUnitScript bsu;
+    BaseUnitScript baseScript;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        bsu = GetComponent<BaseUnitScript>();
+        baseScript = GetComponent<BaseUnitScript>();
     }
 
     // Update is called once per frame
@@ -17,7 +17,7 @@ public class AtEaseState : MonoBehaviour
 
     public void ExecuteState()
     {
-        Debug.DrawRay(transform.position, bsu.TargetForwardTransform * 5f, Color.red, 0.0f, false);
-        bsu.TurnToDirection(bsu.TargetForwardTransform - transform.position);
+        Debug.DrawRay(transform.position, baseScript.TargetForwardTransform * 5f, Color.red, 0.0f, false);
+        baseScript.TurnToDirection(baseScript.TargetForwardTransform - transform.position);
     }
 }

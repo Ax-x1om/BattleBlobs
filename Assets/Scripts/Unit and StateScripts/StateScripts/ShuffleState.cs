@@ -5,13 +5,15 @@ using UnityEngine.UIElements;
 public class ShuffleState : MonoBehaviour
 {
     public float ShuffleTime = 1f;
-    BaseUnitScript bsu;
+    BaseUnitScript baseScript;
     Vector3 RandomDirection;
     public bool enteringState = true;
+    float maxSpeed;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        bsu = GetComponent<BaseUnitScript>();
+        baseScript = GetComponent<BaseUnitScript>();
+        maxSpeed = baseScript.getMaxSpeed();
     }
 
     // Update is called once per frame
@@ -36,11 +38,11 @@ public class ShuffleState : MonoBehaviour
             enteringState = false;
         }
 
-        bsu.MoveInAnyDirection(bsu.maximumSpeed * RandomDirection);
+        baseScript.MoveInAnyDirection(maxSpeed * RandomDirection);
         ShuffleTime -= Time.deltaTime;
         if (ShuffleTime <= 0.0f)
         {
-            bsu.setState("Idle");
+            baseScript.setState("Idle");
         }
     }
 }

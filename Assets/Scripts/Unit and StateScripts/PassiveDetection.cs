@@ -2,17 +2,16 @@ using UnityEngine;
 
 public class PassiveDetection : MonoBehaviour
 {
-    BaseUnitScript bsu;
-    SphereCollider range;
-    GameObject unit;
-    GameObject avoidanceRange;
+    protected BaseUnitScript baseScript;
+    protected SphereCollider range;
+    protected GameObject unit;
+    protected GameObject avoidanceRange;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
-        bsu = GetComponentInParent<BaseUnitScript>();
+        baseScript = GetComponentInParent<BaseUnitScript>();
         range = GetComponent<SphereCollider>();
-        // for some reason, this isn't reading the correct ObstacleDetectionRange
-        range.radius = bsu.ObstacleDetectionRange;
+        range.radius = baseScript.ObstacleDetectionRange;
         unit = transform.parent.gameObject;
     }
 
@@ -20,7 +19,24 @@ public class PassiveDetection : MonoBehaviour
     void Update()
     {
         // So the collider doesn't get left behind
-        transform.position = bsu.transform.position;
+        transform.position = baseScript.transform.position;
+    }
+
+    bool LayerIsInLayerMask(LayerMask layermask, int layer)
+    {
+        // Layermasks are bitmasks and layers are ints
+        // so we shift the layer according to what number it is and compate it to the layermask
+        // if they're both 1, we return true
+        int bitShiftedLayer = 1 << layer;
+        int result = (layermask & bitShiftedLayer);
+        if (result != 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     private void OnTriggerStay(Collider other)
@@ -29,40 +45,42 @@ public class PassiveDetection : MonoBehaviour
         // Does this so we don't do the expensive raycast thing if there's nothing nearby
         if (other.gameObject != unit)
         {
+            Debug.Log("Layer of object detected: " + other.gameObject.layer + " by unit " + unit.name);
             // Does this check so it doesn't detect itself
-
-            if (other.gameObject.layer == bsu.enemy)
+            if (LayerIsInLayerMask(baseScript.enemy, other.gameObject.layer))
             {
+                Debug.Log("Enemy Spotted");
+                Debug.Log("State check: " + (baseScript.getState() != "Forming Up" && baseScript.getState() != "At Ease" && baseScript.getState() != "Marching"));
                 // Sets the state to fighting if the unit is an enemy and the unit is not in formation
-                if (bsu.getState() != "Forming Up" & bsu.getState() != "At Ease" & bsu.getState() != "Marching")
+                if (baseScript.getState() != "Forming Up" && baseScript.getState() != "At Ease" && baseScript.getState() != "Marching")
                 {
-                    bsu.TargetLocation = other.gameObject.transform.position;
-                    bsu.setState("Fighting");
+                    baseScript.TargetLocation = other.gameObject.transform.position;
+                    baseScript.setState("Fighting");
                 }
             }
             else
             {
                 // makes the unit attempt to avoid obstacles
-                bsu.isThereObstacle = true;
+                baseScript.isThereObstacle = true;
             }
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.layer == bsu.enemy)
+        if (other.gameObject.layer == baseScript.enemy)
         {
             // Sets the state to fighting if the unit is an enemy and the unit is not in formation
-            if (bsu.getState() != "Forming Up" & bsu.getState() != "At Ease" & bsu.getState() != "Marching")
+            if (baseScript.getState() != "Forming Up" & baseScript.getState() != "At Ease" & baseScript.getState() != "Marching")
             {
-                bsu.TargetLocation = other.gameObject.transform.position;
-                bsu.setState("Idle");
+                baseScript.TargetLocation = other.gameObject.transform.position;
+                baseScript.setState("Idle");
             }
         }
         else
         {
             // makes the unit attempt to avoid obstacles
-            bsu.isThereObstacle = false;
+            baseScript.isThereObstacle = false;
         }
     }
 }

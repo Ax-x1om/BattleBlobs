@@ -2,16 +2,12 @@ using UnityEngine;
 
 public class EnemyPassiveDetection : PassiveDetection
 {
-    BaseEnemyScript bsu;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void Awake()
     {
-        bsu = GetComponentInParent<BaseEnemyScript>();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        baseScript = GetComponentInParent<BaseEnemyScript>();
+        range = GetComponent<SphereCollider>();
+        range.radius = baseScript.ObstacleDetectionRange;
+        unit = transform.parent.gameObject;
     }
 }

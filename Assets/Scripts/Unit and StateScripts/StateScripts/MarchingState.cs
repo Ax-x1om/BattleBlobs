@@ -2,17 +2,18 @@ using UnityEngine;
 
 public class MarchingState : MonoBehaviour
 {
-    BaseUnitScript bsu;
+    BaseUnitScript baseScript;
     bool stuck = false;
     float stucktimer = 0.0f;
     CapsuleCollider mainBody;
     Vector3 CollisionPoint = Vector3.zero;
-
+    float maxSpeed;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         mainBody = GetComponent<CapsuleCollider>();
-        bsu = GetComponent<BaseUnitScript>();
+        baseScript = GetComponent<BaseUnitScript>();
+        maxSpeed = baseScript.getMaxSpeed();
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -29,7 +30,7 @@ public class MarchingState : MonoBehaviour
         if (stuck)
         {
             // Moves the unit away from the collision
-            bsu.MoveInAnyDirection(-bsu.maximumSpeed * CollisionPoint.normalized);
+            baseScript.MoveInAnyDirection(-maxSpeed * CollisionPoint.normalized);
             // Increments the time
             stucktimer -= Time.deltaTime;
             if (stucktimer < 0.0f)
@@ -42,14 +43,14 @@ public class MarchingState : MonoBehaviour
         else
         {
             // Sets direction
-            Vector3 baseDirection = (bsu.TargetLocation - transform.position).normalized;
+            Vector3 baseDirection = (baseScript.TargetLocation - transform.position).normalized;
             // Turns to direction
             // Doesn't do obstacle avoidace checks because real soldiers don't do that, they just march
-            bsu.TurnToDirection(baseDirection);
+            baseScript.TurnToDirection(baseDirection);
             // scales down the speed if the unit is far away from the where it needs to be and scales it up if it's close
             // The speed is doubled so it can move on the outside turn without being left behind
-            float marchspeed = 2 * Mathf.Clamp(bsu.DistanceToTarget(), 0.0f, 2f * bsu.maximumSpeed);
-            bsu.MoveInAnyDirection(transform.forward * marchspeed);
+            float marchspeed = 2 * Mathf.Clamp(baseScript.DistanceToTarget(), 0.0f, 2f * maxSpeed);
+            baseScript.MoveInAnyDirection(transform.forward * marchspeed);
 
             // No code for getting out of this state because the formation will be the one responsible for that
         }

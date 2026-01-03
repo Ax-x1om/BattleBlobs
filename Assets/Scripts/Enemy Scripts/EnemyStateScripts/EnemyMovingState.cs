@@ -3,11 +3,13 @@ using UnityEngine;
 
 public class EnemyMovingState : MovingState
 {
-    BaseEnemyScript bsu;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    protected override void Start()
     {
-        bsu = GetComponentInParent<BaseEnemyScript>();
+        mainBody = GetComponent<CapsuleCollider>();
+        baseScript = GetComponentInParent<BaseEnemyScript>();
+        maxSpeed = baseScript.getMaxSpeed();
     }
 
     // Update is called once per frame

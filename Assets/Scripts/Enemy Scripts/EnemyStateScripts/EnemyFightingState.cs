@@ -2,11 +2,14 @@ using UnityEngine;
 
 public class EnemyFightingState : FightingState
 {
-    BaseEnemyScript bsu;
+   
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    protected override void Start()
     {
-        bsu = GetComponentInParent<BaseEnemyScript>();
+        baseScript = GetComponentInParent<BaseEnemyScript>();
+        baseScript.DebugLog();
+        mainBody = GetComponent<CapsuleCollider>();
+        maxSpeed = baseScript.getMaxSpeed();
     }
 
     // Update is called once per frame
