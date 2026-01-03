@@ -15,9 +15,9 @@ public class BaseUnitScript : MonoBehaviour
     // Variables for moving and turning
     public float maximumSpeed = 20f;
     readonly float CounterForce = 2f;
-    readonly float RotationSpeed = 12f;
+    readonly float RotationSpeed = 15f;
     readonly float RotationDamping = 2f;
-    readonly float maximumResistiveForce = 20f;
+    readonly float maximumResistiveForce = 30f;
     readonly float maximumForwardForce = 20f;
     readonly float TurnDst = 2f;
     Vector3 CounterMovement = Vector3.zero;
@@ -62,7 +62,7 @@ public class BaseUnitScript : MonoBehaviour
     public float attackRange;
     public float stunDuration;
     float stunTimer = 0;
-    bool stunned = false;
+    protected bool stunned = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -111,11 +111,7 @@ public class BaseUnitScript : MonoBehaviour
             }
             else
             {
-                if (state == "Idle")
-                {
-                    
-                }
-                else if (state == "Moving")
+                if (state == "Moving")
                 {
                     movingstate.ExecuteState();
                 }
@@ -161,14 +157,14 @@ public class BaseUnitScript : MonoBehaviour
         UnitSelectionManager.Instance.allUnitsList.Remove(gameObject);
     }
 
-    bool isOnGround()
+    protected bool isOnGround()
     {
         // Does a short raycast to the ground to see if it's on the ground
         RaycastHit check;
         return Physics.Raycast(transform.position, Vector3.down, out check, springLength, floor);
     }
 
-    void Hover()
+    protected void Hover()
     {
         // Makes the unit hover above the ground by applying a force to make it levitate
         RaycastHit spring;
@@ -177,7 +173,7 @@ public class BaseUnitScript : MonoBehaviour
             float levitationError = rideHeight - spring.distance;
             float verticalVelocity = m_rigidbody.linearVelocity.y;
             // Adds an upwards force to the capsule while dampening the oscillations caused
-            m_rigidbody.AddForce(Vector3.up * (levitationError * springStrength - verticalVelocity * springDampening));
+            m_rigidbody.AddForce(Vector3.up * (levitationError * springStrength - verticalVelocity * springDampening), ForceMode.Acceleration);
         }
     }
 
@@ -187,7 +183,7 @@ public class BaseUnitScript : MonoBehaviour
         DirectionTo.y = 0;
         return DirectionTo.magnitude;
     }
-    public void TurnToDirection(Vector3 Direction)
+    public void TurnToDirection(Vector3 Direction, float turnMultiplier = 1f)
     {
 
         // Normalises the direction vector
@@ -201,7 +197,7 @@ public class BaseUnitScript : MonoBehaviour
             rotationAxis = rotationAxis.normalized;
         }
         // Spin
-        m_rigidbody.AddTorque(rotationAxis * RotationSpeed - m_rigidbody.angularVelocity * RotationDamping);
+        m_rigidbody.AddTorque(rotationAxis * turnMultiplier * RotationSpeed - m_rigidbody.angularVelocity * RotationDamping, ForceMode.Acceleration);
     }
 
     public void MoveForward()
@@ -232,6 +228,11 @@ public class BaseUnitScript : MonoBehaviour
         TargetVelocity.y = 0;
         // Force gets smaller as the Target and Current Velocities get closer
         Vector3 MovementForce = Vector3.ClampMagnitude(TargetVelocity - CurrentVelocity, maximumForwardForce);
+        if (OnMud())
+        {
+            // Slows down unit if it's on mud
+            MovementForce *= 0.5f;
+        }
         m_rigidbody.AddForce(MovementForce);
     }
 
@@ -243,7 +244,7 @@ public class BaseUnitScript : MonoBehaviour
     }
 
     // Adds resistive forces so the unit can stop and not accelerate forever
-    void addResistiveForces()
+    protected void addResistiveForces()
     {
         // Sets the counter force to the the negative of the movement
         CounterMovement.Set(m_rigidbody.linearVelocity.x, 0f, m_rigidbody.linearVelocity.z);
@@ -253,22 +254,22 @@ public class BaseUnitScript : MonoBehaviour
         m_rigidbody.AddForce(CounterMovement);
     }
 
-    public void Attack(Collider other)
+    public virtual void Attack(Collider other)
     {
         // Attacks by pushing their opponent away
         if (other.attachedRigidbody)
         {
             // Stuns the opponent, stopping the levitation for a bit, allowing it to tumble away
             // Change BaseUnitScript to whatever the enemy equivalent is
-            other.gameObject.GetComponent<BaseUnitScript>().stun();
+            other.gameObject.GetComponent<BaseEnemyScript>().stun();
             //Vector3 random = RandomVector(attackStrength * 0.3f, true);
             other.attachedRigidbody.AddForce(AwayVector(other.attachedRigidbody.position) * attackStrength, ForceMode.Impulse);
             // Does damage
-            other.gameObject.GetComponent<BaseUnitScript>().ModifyHealth(-attackDamage);
+            other.gameObject.GetComponent<BaseEnemyScript>().ModifyHealth(-attackDamage);
         }
     }
 
-    Vector3 AwayVector(Vector3 opponentPosition)
+    protected Vector3 AwayVector(Vector3 opponentPosition)
     {
         // Makes it so any attack pushes the enemy away
         Vector3 Relative_Location = opponentPosition - transform.position;
@@ -285,13 +286,13 @@ public class BaseUnitScript : MonoBehaviour
         }
     }
 
-    void stun()
+    public void stun()
     {
         stunned = true;
         stunTimer = stunDuration;
     }
 
-    void whenStunned()
+    protected void whenStunned()
     {
         stunTimer -= Time.deltaTime;
         if (stunTimer < 0)

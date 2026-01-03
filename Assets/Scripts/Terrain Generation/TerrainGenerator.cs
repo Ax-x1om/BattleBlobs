@@ -177,8 +177,9 @@ public class TerrainGenerator : MonoBehaviour
             if (Physics.Raycast(Check, out var Info))
             {
                 GameObject UnitTest = Instantiate(Unit, Info.point + Vector3.up * 5f, Quaternion.identity);
-                Start += 5 * RandomVector();
             }
+
+            Start += 5 * RandomVector();
         }
     }
 

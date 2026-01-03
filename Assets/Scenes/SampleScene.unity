@@ -717,8 +717,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ranks: 3
-  file: {fileID: 0}
-  formation: {fileID: 0}
+  file: {fileID: 710652128487101958, guid: e920122c4fce25940b0002c542c63c5f, type: 3}
+  formation: {fileID: 4461537453022250104, guid: 648be35a2abb1ff439cfbcf13514e233, type: 3}
   allUnitsList: []
   Formations: []
   selectedUnitsList: []

@@ -3,8 +3,8 @@ using UnityEngine;
 public class FormingUpState : MonoBehaviour
 {
     BaseUnitScript bsu;
-    float vicinityRadius = 0.1f;
-    float slowdownRadius = 3.0f;
+    float vicinityRadius = 0.2f;
+    float slowdownRadius = 4.0f;
     bool stuck = false;
     float stucktimer = 0.0f;
     CapsuleCollider mainBody;
@@ -160,7 +160,7 @@ public class FormingUpState : MonoBehaviour
                     {
                         // Makes the unit slow down when it's close to the point
                         Vector3 baseDirection = (bsu.TargetLocation - transform.position).normalized;
-                        bsu.TurnToDirection(baseDirection);
+                        bsu.TurnToDirection(baseDirection, 5f);
                         bsu.MoveInAnyDirection(transform.forward * bsu.maximumSpeed * bsu.DistanceToTarget() / slowdownRadius);
                     }
                 }

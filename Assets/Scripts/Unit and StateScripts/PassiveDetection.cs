@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PassiveDetectionScript : MonoBehaviour
+public class PassiveDetection : MonoBehaviour
 {
     BaseUnitScript bsu;
     SphereCollider range;
