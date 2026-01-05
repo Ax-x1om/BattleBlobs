@@ -4,7 +4,7 @@ using UnityEngine;
 public class MovingState : MonoBehaviour
 {
     protected BaseUnitScript baseScript;
-    public float vicinityRadius = 3f;
+    float vicinityRadius = 7f;
     bool stuck = false;
     float stucktimer = 0.0f;
     protected CapsuleCollider mainBody;

@@ -24,6 +24,8 @@ public class BaseEnemyScript : BaseUnitScript
         topLeft = TerrainGenerator.Instance.topLeftcorner;
         mudmap = TerrainGenerator.Instance.mudmap;
 
+        EnemyManager.Instance.allEnemiesList.Add(gameObject);
+
         dtheta = RayCastAngle * Mathf.Deg2Rad;
     }
 

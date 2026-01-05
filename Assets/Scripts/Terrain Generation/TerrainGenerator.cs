@@ -1,9 +1,11 @@
 using System.Collections.Generic;
+using System.Drawing;
 using NUnit.Framework;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Analytics;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using static UnityEngine.Mesh;
 
 public class TerrainGenerator : MonoBehaviour
@@ -51,8 +53,7 @@ public class TerrainGenerator : MonoBehaviour
     List<Vector2> PoissonPoints;
     //List<Vector3> obstaclePoints = new List<Vector3>();
 
-    public GameObject Unit;
-    public GameObject Enemy;
+    LayerMask ground;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -69,6 +70,8 @@ public class TerrainGenerator : MonoBehaviour
     void Start()
     {
         mapGenerator = MapGenerator.GetComponent<MapGenerator>();
+
+        ground = LayerMask.GetMask("Ground");
 
         bottomLeftCorner = Vector2.one * -TerrainSize / 2 * terrainScale;
 
@@ -149,7 +152,12 @@ public class TerrainGenerator : MonoBehaviour
         {
             Vector3 rayCastStart = V2toV3(treepoint);
             Ray HeightCheck = new Ray(rayCastStart, Vector3.down);
-            if (Physics.Raycast(HeightCheck, out var hitInfo))
+            if (Physics.Raycast(
+                ray: HeightCheck,
+                hitInfo: out var hitInfo,
+                maxDistance: Mathf.Infinity,
+                layerMask: ground)
+                )
             {
                 float scaledHeight = hitInfo.point.y / maxTerrainHeight;
                 float probability = LineFromTwoPoints(maxTreeHeight, treeDropOffHeight, scaledHeight);
@@ -162,40 +170,11 @@ public class TerrainGenerator : MonoBehaviour
                 {
                     if (probability > Random.value)
                     {
-                        GameObject Tree = Instantiate(tree, hitInfo.point, Quaternion.identity);
+                        GameObject Tree = Instantiate(tree, hitInfo.point, Quaternion.Euler(0f, Random.value * 360f, 0f));
                     }
                 }
             }
-        }
-
-        // Spawns units for debugging, remove later
-        Vector3 Start = new Vector3(0f, 200f, 0f);
-     
-        for (int i = 0; i < 10; i++)
-        {
-            Ray Check = new Ray(Start, Vector3.down);
-
-            if (Physics.Raycast(Check, out var Info))
-            {
-                GameObject UnitTest = Instantiate(Unit, Info.point + Vector3.up * 5f, Quaternion.identity);
-            }
-
-            Start += 5 * RandomVector();
-        }
-
-        Vector3 EnemyStart = new Vector3(0f, 200f, 100f);
-
-        for (int i = 0; i < 10; i++)
-        {
-            Ray Check = new Ray(EnemyStart, Vector3.down);
-
-            if (Physics.Raycast(Check, out var Info))
-            {
-                GameObject UnitTest = Instantiate(Enemy, Info.point + Vector3.up * 2f, Quaternion.identity);
-            }
-
-            EnemyStart += 5 * RandomVector();
-        }
+        }     
     }
 
     // Update is called once per frame
@@ -227,12 +206,5 @@ public class TerrainGenerator : MonoBehaviour
         Vector3 V3 = Vector3.zero;
         V3.Set(V2.x, Ycoord, V2.y);
         return V3;
-    }
-
-    // Remove later
-    Vector3 RandomVector()
-    {
-        float angle = Random.Range(-Mathf.PI, Mathf.PI);
-        return new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle));
     }
 }

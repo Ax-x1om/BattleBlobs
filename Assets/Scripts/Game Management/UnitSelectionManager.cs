@@ -247,13 +247,6 @@ public class UnitSelectionManager : MonoBehaviour
         }
     }
 
-    Vector3 RandomVector(float Xcomp, float Zcomp)
-    {
-        float X = UnityEngine.Random.Range(-Xcomp, Xcomp);
-        float Z = UnityEngine.Random.Range(-Zcomp, Zcomp);
-        Vector3 Out = new Vector3(X, 0.0f, Z);
-        return Out;
-    }
     float Bearing(Vector3 Vect2)
     {
         Vect2.y = 0;
@@ -287,6 +280,24 @@ public class UnitSelectionManager : MonoBehaviour
     {
         Debug.Log(unit.name);
         unit.transform.GetChild(0).gameObject.SetActive(isVisible);
+    }
+
+    public Vector3 COMofAllUnits()
+    {
+        // Gets the average location of all selected units
+        float n = 0;
+        Vector3 COM = Vector3.zero;
+        foreach (GameObject unit in allUnitsList)
+        {
+            // Adds up all their positions
+            COM += unit.transform.position;
+            n += 1;
+        }
+        // Divides by N to get the mean
+        COM = COM / n;
+        // Makes it flat
+        COM.y = 0;
+        return COM;
     }
 
     Vector3 COMofUnits()

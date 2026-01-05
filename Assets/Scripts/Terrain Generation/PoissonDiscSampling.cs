@@ -4,7 +4,7 @@ using UnityEngine;
 
 public static class PoissonDiscSampling
 {
-    public static List<Vector2> GeneratePoints(float radius, Vector2 sampleRegionSize, Vector2 bottomLeftCorner, int numSamplesBeforeRejection = 30)
+    public static List<Vector2> GeneratePoints(float radius, Vector2 sampleRegionSize, Vector2 bottomLeftCorner, int numSamplesBeforeRejection = 30, int maxNumPoints = int.MaxValue)
     {
         // So any 2 points in the same grid will always be too close and you only need to check within a 5x5 block of cells
         float cellSize = radius / Mathf.Sqrt(2);
@@ -20,7 +20,8 @@ public static class PoissonDiscSampling
         // Inital spawnpoint
         spawnpoints.Add((topRightCorner + bottomLeftCorner) / 2);
         // Runs loop while there are still possible points to spawn
-        while (spawnpoints.Count > 0)
+        // Or while the number of points is less than the maxpoint size
+        while (spawnpoints.Count > 0 && points.Count < maxNumPoints)
         {
             // Picks a random point to attempt to spawn from
             int spawnIndex = Random.Range(0, spawnpoints.Count);
