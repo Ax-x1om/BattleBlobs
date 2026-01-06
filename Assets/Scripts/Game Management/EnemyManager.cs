@@ -11,6 +11,9 @@ public class EnemyManager : MonoBehaviour
 
     int attackNumber;
 
+    int maxNumEnemies;
+    int minNumEnemies;
+
     public List<GameObject> allEnemiesList = new List<GameObject>();
 
     List<Vector3> Waypoints = new List<Vector3>();
@@ -90,5 +93,11 @@ public class EnemyManager : MonoBehaviour
         // Makes it flat
         COM.y = 0;
         return COM;
+    }
+
+    public void setMaxEnemies(int maxEnemies)
+    {
+        maxNumEnemies = maxEnemies;
+        minNumEnemies = Mathf.FloorToInt(maxNumEnemies * 0.05f);
     }
 }

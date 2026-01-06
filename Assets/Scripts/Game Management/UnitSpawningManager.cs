@@ -6,14 +6,18 @@ using Unity.VisualScripting.Antlr3.Runtime.Tree;
 
 public class UnitSpawningManager : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public static UnitSpawningManager Instance { get; set; }
+
     private Camera cam;
 
     public GameObject soldierSpawner;
     public GameObject enemysoldierSpawner;
     public GameObject enemyManager;
 
-    List<GameObject> spawnersList = new List<GameObject>();
+    public bool Active = true;
+
+    List<GameObject> playerSpawnersList = new List<GameObject>();
+    List<GameObject> enemySpawnersList = new List<GameObject>();
 
     Vector2 enemyRegionSize = new Vector2(1000f, 500f);
     Vector2 enemyBottomLeftCorner = new Vector2(-500f, 0f);
@@ -22,13 +26,26 @@ public class UnitSpawningManager : MonoBehaviour
     public GameObject unitSelectionManager;
     public GameObject selectionBox;
 
-    int num_soldiers = 20;
+    public int num_soldiers = 20;
 
     Quaternion playerRotation;
     Quaternion enemyRotation;
 
     LayerMask ground;
     LayerMask spawner;
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            Instance = this;
+        }
+    }
+
     void Start()
     {
         cam = Camera.main;
@@ -54,7 +71,7 @@ public class UnitSpawningManager : MonoBehaviour
                 )
             {
                 GameObject newEnemySpawner = Instantiate(enemysoldierSpawner, hit.point + 3 * Vector3.up, enemyRotation);
-                spawnersList.Add(newEnemySpawner);
+                enemySpawnersList.Add(newEnemySpawner);
             }
         }
     }
@@ -100,14 +117,14 @@ public class UnitSpawningManager : MonoBehaviour
                     if (num_soldiers > 0)
                     {
                         GameObject newSoldier = Instantiate(soldierSpawner, hit.point + 3 * Vector3.up, playerRotation);
-                        spawnersList.Add(newSoldier);
+                        playerSpawnersList.Add(newSoldier);
                         num_soldiers -= 1;
                     }
                 }
                 else if (LayerIsInLayerMask(spawner, testLayer))
                 {
                     Destroy(hit.collider.gameObject);
-                    spawnersList.Remove(hit.collider.gameObject);
+                    playerSpawnersList.Remove(hit.collider.gameObject);
                     num_soldiers += 1;
                 }
             }
@@ -117,11 +134,19 @@ public class UnitSpawningManager : MonoBehaviour
             unitSelectionManager.SetActive(true);
             selectionBox.SetActive(true);
             enemyManager.SetActive(true);
-            foreach (GameObject spawner in spawnersList)
+            enemyManager.GetComponent<EnemyManager>().setMaxEnemies(enemySpawnersList.Count);
+            foreach (GameObject spawner in enemySpawnersList)
             {
                 spawner.GetComponent<Spawner>().SpawnUnit();
             }
-            spawnersList.Clear();
+            enemySpawnersList.Clear();
+            foreach (GameObject spawner in playerSpawnersList)
+            {
+                spawner.GetComponent<Spawner>().SpawnUnit();
+            }
+            playerSpawnersList.Clear();
+
+            Active = false;
         }
     }
 }

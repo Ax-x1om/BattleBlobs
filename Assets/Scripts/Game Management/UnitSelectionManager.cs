@@ -17,8 +17,13 @@ public class UnitSelectionManager : MonoBehaviour
     public int ranks = 3;
     public GameObject file;
     public GameObject formation;
-   
 
+    // Variables for determining victory
+    int maxNumUnits;
+    int minNumUnits;
+    public bool playerLost = false;
+
+    // Lists of units for selection and formation
     public List<GameObject> allUnitsList = new List<GameObject>();
     public List<GameObject> Formations = new List<GameObject>();
     public List<GameObject> selectedUnitsList = new List<GameObject>();
@@ -266,6 +271,11 @@ public class UnitSelectionManager : MonoBehaviour
         selectedUnitsList.Clear();
     }
 
+    public void setMaxUnits(int max)
+    {
+        maxNumUnits = max;
+        minNumUnits = Mathf.FloorToInt(maxNumUnits * 0.05f);
+    }
     private void SelectByClicking(GameObject unit)
     {
 
