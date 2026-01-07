@@ -195,6 +195,12 @@ public class UnitSelectionManager : MonoBehaviour
             }
             // Then when we tell them to move, they'll move with the formation
         }
+
+        if (allUnitsList.Count < minNumUnits)
+        {
+            playerLost = true;
+            Time.timeScale = 0f;
+        }
     }
 
     public void OnPathFound(Vector3[] newpath, bool pathSucessful)

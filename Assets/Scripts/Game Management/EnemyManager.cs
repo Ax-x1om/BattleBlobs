@@ -11,6 +11,8 @@ public class EnemyManager : MonoBehaviour
 
     int attackNumber;
 
+    public bool enemyLost = false;
+
     int maxNumEnemies;
     int minNumEnemies;
 
@@ -46,6 +48,12 @@ public class EnemyManager : MonoBehaviour
         {
             PathRequestManager.RequestPath(new PathRequest(COMofUnits(), UnitSelectionManager.Instance.COMofAllUnits(), OnPathFound));
             attackTimer = attackTime + Random.Range(-attackTime/5f,attackTime/5f);
+        }
+
+        if (allEnemiesList.Count < minNumEnemies)
+        {
+            enemyLost = true;
+            Time.timeScale = 0f;
         }
     }
 

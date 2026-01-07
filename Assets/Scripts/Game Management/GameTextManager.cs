@@ -10,6 +10,11 @@ public class GameTextManager : MonoBehaviour
     public TMP_Text survivingEnemyUnits;
     public TMP_Text survivingFriendlyUnits;
 
+    public TMP_Text youWin;
+    public TMP_Text youLose;
+    public Button playAgain;
+    public Button quit;
+
     void Start()
     {
 
@@ -21,6 +26,13 @@ public class GameTextManager : MonoBehaviour
         unitsLeft.enabled = UnitSpawningManager.Instance.Active;
         survivingEnemyUnits.enabled = !(UnitSpawningManager.Instance.Active);
         survivingFriendlyUnits.enabled = !(UnitSpawningManager.Instance.Active);
+
+        youLose.enabled = UnitSelectionManager.Instance.playerLost;
+        youWin.enabled = EnemyManager.Instance.enemyLost;
+
+        playAgain.enabled = (UnitSelectionManager.Instance.playerLost | EnemyManager.Instance.enemyLost);
+        quit.enabled = (UnitSelectionManager.Instance.playerLost | EnemyManager.Instance.enemyLost);
+
         if (unitsLeft.enabled)
         {
             // Only checks the text if the text is actually enabled

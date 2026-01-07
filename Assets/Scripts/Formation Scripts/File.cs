@@ -31,9 +31,12 @@ public class File : MonoBehaviour
     {
         foreach (GameObject unit in UnitsInFile)
         {
-            // Makes units shuffle to break up the formation
-            Debug.Log("Shuffle now");
-            unit.GetComponent<BaseUnitScript>().setState("Shuffling");
+            if (unit)
+            {
+                // Makes units shuffle to break up the formation
+                Debug.Log("Shuffle now");
+                unit.GetComponent<BaseUnitScript>().setState("Shuffling");
+            }
         }
         UnitsInFile.Clear();
     }
@@ -48,7 +51,10 @@ public class File : MonoBehaviour
         // Makes each unit stop marching when the file stops moving
         foreach (GameObject unit in UnitsInFile)
         {
-            unit.GetComponent<BaseUnitScript>().setState("At Ease");
+            if (unit)
+            {
+                unit.GetComponent<BaseUnitScript>().setState("At Ease");
+            }
         }
     }
 
@@ -59,7 +65,10 @@ public class File : MonoBehaviour
         moving = true;
         foreach (GameObject unit in UnitsInFile)
         {
-            unit.GetComponent<BaseUnitScript>().setState("Marching");
+            if (unit)
+            {
+                unit.GetComponent<BaseUnitScript>().setState("Marching");
+            }
         }
         Waypoints = path.lookPoints;
     }
@@ -94,8 +103,10 @@ public class File : MonoBehaviour
                 transform.position += transform.forward * Time.deltaTime * speed;
                 for (int i = 0; i < UnitsInFile.Count; i++)
                 {
-
-                    UnitsInFile[i].GetComponent<BaseUnitScript>().setTarget(UnitPositions[i]);
+                    if (UnitsInFile[i])
+                    {
+                        UnitsInFile[i].GetComponent<BaseUnitScript>().setTarget(UnitPositions[i]);
+                    }
                 }
             }
         }
