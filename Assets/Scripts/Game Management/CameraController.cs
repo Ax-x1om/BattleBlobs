@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 public class CameraController : MonoBehaviour
 {
-    readonly float CameraLinearSpeed = 30f;
+    readonly float CameraLinearSpeed = 60f;
     readonly float CameraRotationalSpeed = 60f;
     readonly float CameraZoomSpeed = 10f;
     readonly float MinFOV = 5f;
@@ -16,6 +16,7 @@ public class CameraController : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        Time.timeScale = 1f;
         myBody = GetComponent<Rigidbody>();
         angularVelocity *= CameraRotationalSpeed;
     }
@@ -27,6 +28,7 @@ public class CameraController : MonoBehaviour
         if (Input.GetKey("right"))
         {
             // Moves camera right
+            Debug.Log("Camera moving right");
             nextStep += transform.right * Time.deltaTime * CameraLinearSpeed;
         }
         else if (Input.GetKey("left"))

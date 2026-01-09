@@ -137,9 +137,7 @@ public class TerrainGenerator : MonoBehaviour
                 }
             }
         }
-        Debug.Log("Mudmap Created");
-        Debug.Log("Terrain Generator: " + mudmap);
-
+        
         // Sets the heightmap and mudmaps into the grid so the weights and heights can be calculated properly
         aStarGrid.heightMap = heightmap;
         aStarGrid.mudmap = mudmap;

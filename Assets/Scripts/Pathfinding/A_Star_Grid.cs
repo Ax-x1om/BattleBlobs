@@ -23,9 +23,9 @@ public class A_Star_Grid : MonoBehaviour
     private void Start()
     {
         nodeDiameter = nodeRadius * 2;
-        Debug.Log(nodeRadius);
+        
         gridSizeX = Mathf.RoundToInt(gridWorldSize.x / nodeDiameter);
-        Debug.Log(gridSizeX);
+        
         gridSizeY = Mathf.RoundToInt(gridWorldSize.y / nodeDiameter);
         CreateGrid();
     }
@@ -91,8 +91,10 @@ public class A_Star_Grid : MonoBehaviour
         float Z = worldPosition.z;
         int x = Mathf.FloorToInt((X - topLeft.x) / nodeDiameter);
         int z = Mathf.FloorToInt((topLeft.y - Z) / nodeDiameter);
-        Debug.Log("Grid X: " + x);
-        Debug.Log("Grid Z: " + z);
+        if (x >= gridSizeX | z >= gridSizeY)
+        {
+            return null;
+        }
         return grid[x, z];
     }
 }

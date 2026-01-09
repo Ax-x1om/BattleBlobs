@@ -26,9 +26,11 @@ public class Pathfinding : MonoBehaviour
 
         Vector3[] waypoints = new Vector3[0];
         bool pathSucess = false;
+        bool nullNode = false;
 
         Node startNode = grid.NodeFromWorldPoint(request.pathStart);
         Node targetNode = grid.NodeFromWorldPoint(request.pathEnd);
+        nullNode = (startNode == null | targetNode == null);
 
         // Creates a heap
         Heap<Node> openSet = new Heap<Node>(grid.MaxSize);
@@ -37,7 +39,7 @@ public class Pathfinding : MonoBehaviour
         // adds startNode to heap
         openSet.Add(startNode);
 
-        while (openSet.Count > 0)
+        while (openSet.Count > 0 && !(nullNode))
         {
             Node currentNode = openSet.RemoveFirst();
             closedSet.Add(currentNode);

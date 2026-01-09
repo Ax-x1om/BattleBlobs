@@ -14,7 +14,7 @@ public class FightingState : MonoBehaviour
     protected virtual void Start()
     {
         baseScript = GetComponent<BaseUnitScript>();
-        baseScript.DebugLog();
+       
         mainBody = GetComponent<CapsuleCollider>();
         maxSpeed = baseScript.getMaxSpeed();
     }
@@ -116,7 +116,7 @@ public class FightingState : MonoBehaviour
     public void ExecuteState()
     {
         // Executes the code if the unit is *not* stuck
-        Debug.Log(name + " is fighting");
+        
         if (stuck)
         {
             // Moves the unit away from the collision

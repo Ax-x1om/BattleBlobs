@@ -61,7 +61,7 @@ public class EnemyManager : MonoBehaviour
     {
         Waypoints.Clear();
         // Creates waypoints when the A* finds a path
-        Debug.Log("Was path sucessful?: " + pathSucessful);
+        
         if (pathSucessful)
         {
             foreach (Vector3 point in newpath)
@@ -69,7 +69,7 @@ public class EnemyManager : MonoBehaviour
                 Waypoints.Add(point);
             }
         }
-        Debug.Log("SelectionManager Waypoints Length: " + Waypoints.Count);
+       
 
         
         foreach (GameObject unit in allEnemiesList)

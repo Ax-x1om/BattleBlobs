@@ -17,7 +17,6 @@ public class AtEaseState : MonoBehaviour
 
     public void ExecuteState()
     {
-        Debug.DrawRay(transform.position, baseScript.TargetForwardTransform * 5f, Color.red, 0.0f, false);
         baseScript.TurnToDirection(baseScript.TargetForwardTransform - transform.position);
     }
 }

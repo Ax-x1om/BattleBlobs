@@ -32,11 +32,8 @@ public class BaseEnemyScript : BaseUnitScript
     // Update is called once per frame
     protected override void Update()
     {
-        Debug.Log(name + " update is working");
-        Debug.Log(name + "'s onGround() test: " + base.isOnGround());
         if (base.isOnGround())
         {
-            Debug.Log(name + " is on Ground");
             base.Hover();
             base.addResistiveForces();
             // Probably add a method for the units to move away from each other if they're too close while idle or moving
@@ -48,14 +45,12 @@ public class BaseEnemyScript : BaseUnitScript
             }
             else
             {
-                Debug.Log(name + " is not Stunned");
                 if (state == "Moving")
                 {
                     enemymovingstate.ExecuteState();
                 }
                 else if (state == "Fighting")
                 {
-                    Debug.Log(name + " should be fighting");
                     enemyfightingstate.ExecuteState();
                 }
             }
@@ -76,10 +71,13 @@ public class BaseEnemyScript : BaseUnitScript
         }
     }
 
+    protected override void OnDestroy()
+    {
+        EnemyManager.Instance.allEnemiesList.Remove(gameObject);
+    }
     public override void Attack(Collider other)
     {
         // Overrides the function in BaseUnitScript as it has to trigger a different function in a different script
-        Debug.Log(name + " has attacked");
         // Attacks by pushing their opponent away
         if (other.attachedRigidbody)
         {
@@ -90,6 +88,15 @@ public class BaseEnemyScript : BaseUnitScript
             other.attachedRigidbody.AddForce(base.AwayVector(other.attachedRigidbody.position) * attackStrength, ForceMode.Impulse);
             // Does damage
             other.gameObject.GetComponent<BaseUnitScript>().ModifyHealth(-attackDamage);
+        }
+    }
+
+    protected override void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        foreach (Vector3 point in Waypoints)
+        {
+            Gizmos.DrawCube(point, Vector3.one);
         }
     }
 }

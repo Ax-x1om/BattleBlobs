@@ -38,25 +38,12 @@ public class PathRequestManager : MonoBehaviour
     }
     public static void RequestPath(PathRequest request)
     {
-        Debug.Log("Check if the instance is null " + instance);
-        Debug.Log("Check if the request is null " + request);
         ThreadStart threadStart = delegate
         {
             instance.pathfinding.FindPath(request, instance.FinishedProcessingPath);
         };
         threadStart.Invoke();
     }
-
-    //void TryProcessNext()
-    //{
-    //    if (!isProcessingPath && pathRequestQueue.Count > 0)
-    //    {
-    //        // Will only process the path if it isn't processing a path already
-    //        currentPathRequest = pathRequestQueue.Dequeue();
-    //        isProcessingPath = true;
-    //        pathfinding.StartFindPath(currentPathRequest.pathStart, currentPathRequest.pathEnd);
-    //    }
-    //}
 
     public void FinishedProcessingPath(PathResult result)
     {

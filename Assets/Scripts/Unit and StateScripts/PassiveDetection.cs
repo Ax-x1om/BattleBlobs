@@ -45,12 +45,9 @@ public class PassiveDetection : MonoBehaviour
         // Does this so we don't do the expensive raycast thing if there's nothing nearby
         if (other.gameObject != unit)
         {
-            Debug.Log("Layer of object detected: " + other.gameObject.layer + " by unit " + unit.name);
             // Does this check so it doesn't detect itself
             if (LayerIsInLayerMask(baseScript.enemy, other.gameObject.layer))
             {
-                Debug.Log("Enemy Spotted");
-                Debug.Log("State check: " + (baseScript.getState() != "Forming Up" && baseScript.getState() != "At Ease" && baseScript.getState() != "Marching"));
                 // Sets the state to fighting if the unit is an enemy and the unit is not in formation
                 if (baseScript.getState() != "Forming Up" && baseScript.getState() != "At Ease" && baseScript.getState() != "Marching")
                 {

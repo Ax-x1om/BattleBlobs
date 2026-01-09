@@ -13,7 +13,7 @@ public class BaseUnitScript : MonoBehaviour
     readonly float springDampening = 75f;
     readonly float springLength = 5f;
     // Variables for moving and turning
-    readonly float maximumSpeed = 8f;
+    public float maximumSpeed = 8f;
     readonly float CounterForce = 2f;
     readonly float RotationSpeed = 15f;
     readonly float RotationDamping = 2f;
@@ -27,7 +27,7 @@ public class BaseUnitScript : MonoBehaviour
     public bool isThereObstacle = false;
     readonly public float RayCastAngle = 5f;
     readonly public float MaxRayCastAngle = 120f;
-    readonly public float ObstacleDetectionRange = 12f;
+    public float ObstacleDetectionRange =  12f;
     public float dtheta;
     public int n_raycasts;
 
@@ -66,7 +66,6 @@ public class BaseUnitScript : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        Debug.Log("Im being created");
         m_rigidbody = GetComponent<Rigidbody>();
 
         // Getting statescripts
@@ -81,7 +80,6 @@ public class BaseUnitScript : MonoBehaviour
         terrainSize = TerrainGenerator.Instance.terrainScale;
         topLeft = TerrainGenerator.Instance.topLeftcorner;
         mudmap = TerrainGenerator.Instance.mudmap;
-        Debug.Log("Mudmap Recieved");
         
         
 
@@ -89,7 +87,7 @@ public class BaseUnitScript : MonoBehaviour
         floor = LayerMask.GetMask("Ground");
         Avoid = LayerMask.GetMask("Object") | LayerMask.GetMask("PlayerTeam") | LayerMask.GetMask("PlayerTeamAvoid");
         enemy = LayerMask.GetMask("EnemyTeam");
-        Debug.Log("Enemy layer" + enemy);
+        
         // Adds unit to the unitList
         UnitSelectionManager.Instance.allUnitsList.Add(gameObject);
         // Used in obstacle avoidance
@@ -153,7 +151,7 @@ public class BaseUnitScript : MonoBehaviour
         }
     }
 
-    private void OnDestroy()
+    protected virtual void OnDestroy()
     {
         UnitSelectionManager.Instance.allUnitsList.Remove(gameObject);
     }
@@ -216,7 +214,7 @@ public class BaseUnitScript : MonoBehaviour
             // Slows down unit if it's on mud
             MovementForce *= 0.5f;
         }
-        Debug.DrawRay(transform.position, MovementForce, Color.red, 0.0f, false);
+        
         m_rigidbody.AddForce(MovementForce);
     }
 
@@ -268,11 +266,6 @@ public class BaseUnitScript : MonoBehaviour
             // Does damage
             other.gameObject.GetComponent<BaseEnemyScript>().ModifyHealth(-attackDamage);
         }
-    }
-
-    public void DebugLog()
-    {
-        Debug.Log(name + " This is working");
     }
 
     protected Vector3 AwayVector(Vector3 opponentPosition)
@@ -349,12 +342,12 @@ public class BaseUnitScript : MonoBehaviour
         TargetLocation = newtarget;
     }
 
-    private void OnDrawGizmos()
+    protected virtual void OnDrawGizmos()
     {
-        Gizmos.color = Color.black;
+        Gizmos.color = Color.blue;
         foreach (Vector3 point in Waypoints)
         {
-            Gizmos.DrawCube(point, Vector3.one*5);
+            Gizmos.DrawCube(point, Vector3.one);
         }
     }
 }

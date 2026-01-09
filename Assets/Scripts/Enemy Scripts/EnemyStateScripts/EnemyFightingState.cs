@@ -7,7 +7,7 @@ public class EnemyFightingState : FightingState
     protected override void Start()
     {
         baseScript = GetComponentInParent<BaseEnemyScript>();
-        baseScript.DebugLog();
+       
         mainBody = GetComponent<CapsuleCollider>();
         maxSpeed = baseScript.getMaxSpeed();
     }

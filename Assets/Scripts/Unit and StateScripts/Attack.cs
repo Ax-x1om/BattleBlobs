@@ -13,7 +13,6 @@ public class Attack : MonoBehaviour
     protected virtual void Awake()
     {
         baseScript = GetComponentInParent<BaseUnitScript>();
-        Debug.Log("BSU is now set");
         TBA = baseScript.timeBetweenAttacks;
         timeVariation = TBA * 0.2f;
         AttackTimer = TBA + Random.Range(-timeVariation, timeVariation);

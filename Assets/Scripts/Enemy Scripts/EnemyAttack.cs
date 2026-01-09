@@ -8,7 +8,7 @@ public class EnemyAttack : Attack
     protected override void Awake()
     {
         baseScript = GetComponentInParent<BaseEnemyScript>();
-        Debug.Log("BSU is now set");
+        
         TBA = baseScript.timeBetweenAttacks;
         timeVariation = TBA * 0.2f;
         AttackTimer = TBA + Random.Range(-timeVariation, timeVariation);

@@ -100,12 +100,14 @@ public class UnitSelectionManager : MonoBehaviour
             Ray movePosition = cam.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(movePosition, out hit, Mathf.Infinity, ground))
             {
-                Debug.Log("Hit target");
                 Target = hit.point;
                 LastClick = hit.point;
-                Debug.Log(hit.point);
+
                 // Move all of this into on path found
-                PathRequestManager.RequestPath(new PathRequest(COMofUnits(), Target, OnPathFound));
+                if (selectedUnitsList.Count > 0)
+                {
+                    PathRequestManager.RequestPath(new PathRequest(COMofUnits(), Target, OnPathFound));
+                }
             }
         }
         else if (Input.GetKeyDown("f"))
@@ -116,17 +118,13 @@ public class UnitSelectionManager : MonoBehaviour
             // Clears all formations if any selected units are in a formation
             foreach (GameObject Unit in selectedUnitsList)
             {
-                Debug.Log("Foreach loop reached");
                 // Add or statements for other states the unit could be in in formation
                 if (CheckState(Unit) == "At Ease" || CheckState(Unit) == "Forming Up" || CheckState(Unit) == "Marching")
                 {
-                    Debug.Log("Unit in Formation Detected");
                     foreach (GameObject F in Formations)
                     {
                         Destroy(F);
-                        Debug.Log("Formation Destroyed (?)");
                     }
-                    Debug.Log("Formation wil not be made (?)");
                     noformations = false;
                 }
             }
@@ -207,40 +205,35 @@ public class UnitSelectionManager : MonoBehaviour
     {
         Waypoints.Clear();
         // Creates waypoints when the A* finds a path
-        Debug.Log("Was path sucessful?: " + pathSucessful);
         if (pathSucessful)
         {
-            foreach (Vector3 point in newpath)
-            {
-                Waypoints.Add(point);
-            }
-        }
-        Debug.Log("SelectionManager Waypoints Length: " + Waypoints.Count);
+            Waypoints = newpath.ToList();
 
-        if (Formations.Count > 0)
-        {
-            foreach (GameObject formation in Formations)
+            if (Formations.Count > 0)
             {
                 // Adds an extra point in front of the formation to keep the formation straight initally
                 Vector3[] fpath = new Vector3[Waypoints.Count + 1];
+                // There has to be a faster way of doing this
                 fpath[0] = formation.transform.position + formation.transform.forward * formation.GetComponent<Formation>().ZSpacing();
                 for (int i = 1; i <= Waypoints.Count; i++)
                 {
                     // Adds waypoints to the formations
                     fpath[i] = Waypoints[i - 1];
                 }
-                // Sets the path
-                formation.GetComponent<Formation>().setPath(fpath);
+                foreach (GameObject formation in Formations)
+                {
+                    // Sets the path
+                    formation.GetComponent<Formation>().setPath(fpath);
+                }
             }
-        }
-        else
-        {
-            foreach (GameObject unit in selectedUnitsList)
+            else
             {
-                // Creates a path and makes the units follow it
-                Debug.Log("Path Set");
-                unit.GetComponent<BaseUnitScript>().setPath(Waypoints.ToArray());
-                unit.GetComponent<BaseUnitScript>().setState("Moving");
+                foreach (GameObject unit in selectedUnitsList)
+                {
+                    // Creates a path and makes the units follow it
+                    unit.GetComponent<BaseUnitScript>().setPath(Waypoints.ToArray());
+                    unit.GetComponent<BaseUnitScript>().setState("Moving");
+                }
             }
         }
     }
@@ -272,7 +265,10 @@ public class UnitSelectionManager : MonoBehaviour
     {
         foreach (GameObject unit in selectedUnitsList)
         {
-            TriggerSelectionIndicator(unit, false);
+            if (unit)
+            {
+                TriggerSelectionIndicator(unit, false);
+            }
         }
         selectedUnitsList.Clear();
     }
@@ -284,17 +280,13 @@ public class UnitSelectionManager : MonoBehaviour
     }
     private void SelectByClicking(GameObject unit)
     {
-
-
         DeselectAll();
         TriggerSelectionIndicator(unit, true);
         selectedUnitsList.Add(unit);
-
     }
 
     private void TriggerSelectionIndicator(GameObject unit, bool isVisible)
     {
-        Debug.Log(unit.name);
         unit.transform.GetChild(0).gameObject.SetActive(isVisible);
     }
 

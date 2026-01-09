@@ -111,7 +111,7 @@ GameObject:
   - component: {fileID: 8528928147442042887}
   - component: {fileID: 2068434363839716532}
   m_Layer: 8
-  m_Name: EnemySoldier
+  m_Name: EnemyBrute
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -127,7 +127,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1.1290457, y: 66.57315, z: -21.447836}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 1, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4831129433294171624}
@@ -224,9 +224,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca2999b3eef1d32438333b63f5e92c53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maximumSpeed: 5
   TargetLocation: {x: 0, y: 0, z: 0}
   TargetForwardTransform: {x: 0, y: 0, z: 1}
   isThereObstacle: 0
+  ObstacleDetectionRange: 15
   dtheta: 0
   n_raycasts: 0
   Waypoints: []
@@ -239,11 +241,11 @@ MonoBehaviour:
   enemy:
     serializedVersion: 2
     m_Bits: 0
-  timeBetweenAttacks: 1
-  attackStrength: 5
-  attackDamage: 10
-  Health: 100
-  attackRange: 2
+  timeBetweenAttacks: 3
+  attackStrength: 10
+  attackDamage: 35
+  Health: 250
+  attackRange: 3
   stunDuration: 0.4
 --- !u!114 &7912460235709431026
 MonoBehaviour:
@@ -277,7 +279,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2923269116132243347}
   serializedVersion: 4
-  m_Mass: 1
+  m_Mass: 2
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -417,7 +419,7 @@ Transform:
   m_GameObject: {fileID: 4738916751991933491}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.44, z: 0.3}
+  m_LocalPosition: {x: 0, y: 0.44, z: 0.2}
   m_LocalScale: {x: 0.7, y: 0.2, z: 0.7}
   m_ConstrainProportionsScale: 0
   m_Children: []

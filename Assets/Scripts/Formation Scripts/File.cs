@@ -34,7 +34,7 @@ public class File : MonoBehaviour
             if (unit)
             {
                 // Makes units shuffle to break up the formation
-                Debug.Log("Shuffle now");
+                
                 unit.GetComponent<BaseUnitScript>().setState("Shuffling");
             }
         }
